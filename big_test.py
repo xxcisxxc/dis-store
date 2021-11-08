@@ -4,9 +4,6 @@ import torch.optim as optim
 from torch.optim import lr_scheduler
 from torchvision import datasets, models, transforms
 
-from ckpt_manage import CKPTManage, SGD
-from check_freq import CFCheckpoint, CFManager, CFMode
-
 def main():
     model = models.resnet18()
 
@@ -41,27 +38,19 @@ def main():
     num_ftrs = model.fc.in_features
     model.fc = nn.Linear(num_ftrs, 10)
 
-    ckpt = CKPTManage('ckpt.nvm', model.named_parameters(), model.state_dict())
-
     model = model.to(device)
 
     criterion = nn.CrossEntropyLoss()
 
-    #optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    optimizer = SGD(model.parameters(), ckpt, lr=0.001, momentum=0.9)
-
-    #chk = CFCheckpoint(model=model, optimizer=optimizer)
-    #cf_manager = CFManager('ckpt.ssd', chk, mode=CFMode.AUTO)
+    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
     scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
 
     train_model(model, criterion, optimizer, scheduler, dataloaders, dataset_sizes, 
-        device, ckpt)
-    #train_model(model, criterion, optimizer, scheduler, dataloaders, dataset_sizes, 
-    #    device, cf_manager)
+        device)
 
 def train_model(model, criterion, optimizer, scheduler, dataloaders, dataset_sizes, 
-        device, ckpt, num_epochs=10):
+        device, num_epochs=10):
     
     best_acc = 0.0
 
@@ -96,7 +85,6 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, dataset_siz
                         loss.backward()
                         print("Epoch:%d Iteration:%d" % (epoch, iteration), end="\t")
                         optimizer.step()
-                        #ckpt.weight_update()
 
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
@@ -116,8 +104,6 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, dataset_siz
         print()
 
     print('Best eval Acc: {:4f}'.format(best_acc))
-
-    ckpt.wait_end()
 
 if __name__ == '__main__':
     main()
