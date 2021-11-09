@@ -1,3 +1,20 @@
+diff --git a/infiniswap_daemon/configure.ac b/infiniswap_daemon/configure.ac
+index c7633af..2cc8c01 100644
+--- a/infiniswap_daemon/configure.ac
++++ b/infiniswap_daemon/configure.ac
+@@ -72,10 +72,12 @@ AC_PROG_RANLIB
+ AC_CHECK_LIB([ibverbs], [ibv_get_device_list], [], [AC_MSG_ERROR([libibverbs not found])])
+ AC_CHECK_LIB([pthread], [pthread_create], [], AC_MSG_ERROR([libpthread not found]))
+ AC_CHECK_LIB([rdmacm], [rdma_create_event_channel], [], AC_MSG_ERROR([librdmacm-devel not found]))
++AC_CHECK_LIB([pmem], [pmem_map_file, pmem_unmap], [], AC_MSG_ERROR([libpmem not found]))
+ 
+ # Checks for header files.
+ AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h stdlib.h string.h unistd.h])
+ AC_CHECK_HEADERS([infiniband/verbs.h], [], [AC_MSG_ERROR([ibverbs header files not found])])
++AC_CHECK_HEADERS([libpmem.h], [], [AC_MSG_ERROR([libpmem header files not found])])
+ 
+ # Checks for typedefs, structures, and compiler characteristics.
+ AC_TYPE_UINT16_T
 diff --git a/infiniswap_daemon/rdma-common.c b/infiniswap_daemon/rdma-common.c
 index e1c3af8..0bf9809 100644
 --- a/infiniswap_daemon/rdma-common.c
