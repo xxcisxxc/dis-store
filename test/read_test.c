@@ -13,6 +13,8 @@
 #include <libpmem.h>
 #endif
 
+#define FILEDIR "/mnt/pmem0"
+
 static inline void die(char *msg, int type)
 {
 	if (type)
@@ -37,7 +39,7 @@ static void *addr;
 void *read_thread(void *arg)
 {
     char name_buf[100];
-    sprintf(name_buf, "write%d.test", (int)arg);
+    sprintf(name_buf, "%s/write%d.test", FILEDIR, (int)arg);
     int fd_write = open(name_buf, O_RDONLY);
     if (read(fd_write, addr, size_read) != size_read)
         die_thread("Not enough Read!", 1);
@@ -49,10 +51,14 @@ void *read_thread(void *arg)
 void *read_pmem_thread(void *arg)
 {
     char name_buf[100];
-    sprintf(name_buf, "write%d.test", (int)arg);
+    sprintf(name_buf, "%s/write%d.test", FILEDIR, (int)arg);
     size_t mapped_size;
     void *pmemaddr = pmem_map_file(name_buf, size_read, 
         PMEM_FILE_CREATE, 0666, &mapped_size, NULL);
+    if (pmemaddr == NULL)
+        die("Can't map pmem file", 1);
+    if (mapped_size != size_read)
+        die("Can't fully map", 0);
     memcpy(addr, pmemaddr, size_read);
     pmem_unmap(pmemaddr, mapped_size);
     return NULL;
