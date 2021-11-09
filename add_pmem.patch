@@ -16,7 +16,7 @@ index c7633af..2cc8c01 100644
  # Checks for typedefs, structures, and compiler characteristics.
  AC_TYPE_UINT16_T
 diff --git a/infiniswap_daemon/rdma-common.c b/infiniswap_daemon/rdma-common.c
-index e1c3af8..0bf9809 100644
+index e1c3af8..bde7492 100644
 --- a/infiniswap_daemon/rdma-common.c
 +++ b/infiniswap_daemon/rdma-common.c
 @@ -207,6 +207,18 @@ void * get_serving_mem_region(void *context)
@@ -57,7 +57,7 @@ index e1c3af8..0bf9809 100644
 +#ifndef USE_PMEM
      posix_memalign((void **)&(sess->rdma_remote.region_list[i]), page_size, ONE_GB);
 +#else
-+    sess->rdma_remote.region_list[i]) = pmem_map_file(sess->rdma_remote.region_name[i], ONE_GB, PMEM_FILE_CREATE, 0666, &(sess->rdma_remote.region_mapped_size[i]), NULL);
++    sess->rdma_remote.region_list[i] = pmem_map_file(sess->rdma_remote.region_name[i], ONE_GB, PMEM_FILE_CREATE, 0666, &(sess->rdma_remote.region_mapped_size[i]), NULL);
 +#endif
      memset(sess->rdma_remote.region_list[i], 0x00, ONE_GB);
      sess->rdma_remote.malloc_map[i] = CHUNK_MALLOCED;
@@ -81,7 +81,7 @@ index e1c3af8..0bf9809 100644
 +#ifndef USE_PMEM
              posix_memalign((void **)&(session.rdma_remote.region_list[i]), page_size, ONE_GB);
 +#else
-+            session.rdma_remote.region_list[i]) = pmem_map_file(session.rdma_remote.region_name[i], ONE_GB, PMEM_FILE_CREATE, 0666, &(session.rdma_remote.region_mapped_size[i]), NULL);
++            session.rdma_remote.region_list[i] = pmem_map_file(session.rdma_remote.region_name[i], ONE_GB, PMEM_FILE_CREATE, 0666, &(session.rdma_remote.region_mapped_size[i]), NULL);
 +#endif
              memset(session.rdma_remote.region_list[i], 0x00, ONE_GB);
              session.rdma_remote.malloc_map[i] = CHUNK_MALLOCED;
@@ -98,11 +98,27 @@ index e1c3af8..0bf9809 100644
        session.rdma_remote.conn_map[index] = -1;
        session.rdma_remote.malloc_map[index] = CHUNK_EMPTY;
        session.rdma_remote.conn_chunk_map[index] = -1;
+@@ -742,4 +775,4 @@ void  send_terminate(void *context)
+   struct connection *conn = (struct connection *)context;
+   conn->send_msg->type = DONE;
+   send_message(conn);
+-}
+\ No newline at end of file
++}
 diff --git a/infiniswap_daemon/rdma-common.h b/infiniswap_daemon/rdma-common.h
-index e0740e5..50ccd4b 100644
+index e0740e5..9d99548 100644
 --- a/infiniswap_daemon/rdma-common.h
 +++ b/infiniswap_daemon/rdma-common.h
-@@ -18,6 +18,10 @@
+@@ -6,6 +6,8 @@
+ #ifndef RDMA_COMMON_H
+ #define RDMA_COMMON_H
+ 
++#define USE_PMEM "/mnt/pmem0"
++
+ #include <netdb.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -18,6 +20,10 @@
  #include <netinet/in.h>
  #include <linux/kernel.h>
  
@@ -113,7 +129,7 @@ index e0740e5..50ccd4b 100644
  #ifdef HAVE_CONFIG_H
  #include <config.h>
  #endif
-@@ -179,6 +183,10 @@ struct connection {
+@@ -179,6 +185,10 @@ struct connection {
  #define CHUNK_MALLOCED 1
  #define CHUNK_EMPTY	0
  struct rdma_remote_mem{
