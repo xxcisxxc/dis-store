@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
             pthread_join(threads[i], NULL);
         }
         clock_t end1 = clock(); 
-        time_spent += (double)(end1 - begin1) / CLOCKS_PER_SEC;
+        write_time += (double)(end1 - begin1) / CLOCKS_PER_SEC;
         printf("Write time is %f seconds", write_time);
 
         double read_time = 0.0;
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
             pthread_join(threads[i], NULL);
         }
         clock_t end2 = clock(); 
-        time_spent += (double)(end2 - begin2) / CLOCKS_PER_SEC;
+        read_time += (double)(end2 - begin2) / CLOCKS_PER_SEC;
         printf("Write time is %f seconds", read_time);
     }
 
