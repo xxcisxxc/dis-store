@@ -1,5 +1,6 @@
 #define USE_PMEM
 
+#include <time.h>  
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -86,6 +87,9 @@ int main(int argc, char *argv[])
     
     pthread_t *threads = (pthread_t *)malloc(sizeof(pthread_t)*n_threads);
     int i;
+    double time_spent = 0.0;
+    clock_t begin = clock(); 
+       
     for (i = 0; i < n_threads; i++) {
 #ifndef USE_PMEM
         pthread_create(threads+i, NULL, write_thread, (void *)i);
@@ -96,6 +100,10 @@ int main(int argc, char *argv[])
     for (i = 0; i < n_threads; i++) {
         pthread_join(threads[i], NULL);
     }
+
+    clock_t end = clock(); 
+    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("Write time is %f seconds", time_spent);
 
     munmap(addr, size_read);
     free(threads);

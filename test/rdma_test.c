@@ -1,5 +1,6 @@
 #define USE_PMEM "/mnt/pmem0/test"
 
+#include <time.h> 
 #include <signal.h>
 #include "setup_ib.h"
 
@@ -64,17 +65,30 @@ int main(int argc, char *argv[])
     if (!is_server) {
         pthread_t *threads = (pthread_t *)malloc(sizeof(pthread_t)*n_threads);
         int i;
+        double write_time = 0.0;
+        clock_t begin1 = clock(); 
+
         for (i = 0; i < n_threads; i++) {
             pthread_create(threads+i, NULL, server_write_thread, NULL);
         }
-        for (i = 0; i < n_threads; i++)
+        for (i = 0; i < n_threads; i++) {
             pthread_join(threads[i], NULL);
-        
+        }
+        clock_t end1 = clock(); 
+        time_spent += (double)(end1 - begin1) / CLOCKS_PER_SEC;
+        printf("Write time is %f seconds", write_time);
+
+        double read_time = 0.0;
+        clock_t begin2 = clock(); 
         for (i = 0; i < n_threads; i++) {
             pthread_create(threads+i, NULL, server_read_thread, NULL);
         }
-        for (i = 0; i < n_threads; i++)
+        for (i = 0; i < n_threads; i++) {
             pthread_join(threads[i], NULL);
+        }
+        clock_t end2 = clock(); 
+        time_spent += (double)(end2 - begin2) / CLOCKS_PER_SEC;
+        printf("Write time is %f seconds", read_time);
     }
 
     if (signal(SIGINT, sigint_handler) == SIG_ERR)
