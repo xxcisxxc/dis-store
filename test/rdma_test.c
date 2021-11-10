@@ -1,21 +1,33 @@
+#define USE_PMEM "/mnt/pmem0/test"
+
+#include <signal.h>
 #include "setup_ib.h"
 
 void *server_write_thread(void *args)
 {
+    printf("Start Write.\n");
     post_write_signaled();
+    printf("Successful Write.\n");
     return NULL;
 }
 
 void *server_read_thread(void *args)
 {
+    printf("Start Read.\n");
     post_read_signaled();
+    printf("Successful Read.\n");
     return NULL;
+}
+
+void sigint_handler(int signum)
+{
+    printf("disconnect\n");
 }
 
 int main(int argc, char *argv[])
 {
     /* Open test bench into memory-mapped file */
-    int fd_read = open("test.bench", O_RDONLY);
+    int fd_read = open("test.bench", O_RDWR);
     if (fd_read < 0)
         die("Open failed", 1);
     int size_read = lseek(fd_read, 0, SEEK_END);
@@ -28,8 +40,8 @@ int main(int argc, char *argv[])
         die("Usage: [prog_name] s/c sock_port (server_name) (n_threads)", 0);
     if (argv[1][0] == 's') {
         is_server = 1;
-        if (argc < 3 || argc > 4)
-            die("Usage: [prog_name] s sock_port (n_threads)", 0);
+        if (argc != 3)
+            die("Usage: [prog_name] s sock_port", 0);
         sock_port = argv[2];
         if (argc == 4)
             n_threads = atoi(argv[3]);
@@ -64,6 +76,9 @@ int main(int argc, char *argv[])
         for (i = 0; i < n_threads; i++)
             pthread_join(threads[i], NULL);
     }
+
+    if (signal(SIGINT, sigint_handler) == SIG_ERR)
+        die("Unable to register signal", 1);
 
     pause();
 

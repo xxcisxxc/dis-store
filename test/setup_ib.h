@@ -463,7 +463,7 @@ int setup_ib(int fd, size_t buf_size, int is_server, char *server_name, char *so
 #ifndef USE_PMEM
         ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 #else
-        ib_res.ib_buf = pmem_map_file("test", buf_size, PMEM_FILE_CREATE, 0666, NULL, NULL);
+        ib_res.ib_buf = pmem_map_file(USE_PMEM, buf_size, PMEM_FILE_CREATE, 0666, NULL, NULL);
 #endif
     }
     //ib_res.ib_buf = memalign(4096, ib_res.ib_buf_size);
