@@ -14,7 +14,7 @@
 #include <libpmem.h>
 #endif
 
-#define FILEDIR "/mnt/pmem0"
+static char *FILEDIR = ".";
 
 static inline void die(char *msg, int type)
 {
@@ -80,10 +80,12 @@ int main(int argc, char *argv[])
 
     /* Open write file to write from memory-mapped file */
     int n_threads = 1;
-    if (argc > 2)
-        die("Usage: [prog_name] <nthreads[default: 1]>", 0);
-    if (argc == 2)
-        n_threads = atoi(argv[1]);
+    if (argc > 3)
+        die("Usage: [prog_name] <dir[default: .]> <nthreads[default: 1]>", 0);
+    if (argc == 3)
+        n_threads = atoi(argv[2]);
+    if (argc >= 2)
+        FILEDIR = argv[1];
     
     pthread_t *threads = (pthread_t *)malloc(sizeof(pthread_t)*n_threads);
     int i;
@@ -103,7 +105,7 @@ int main(int argc, char *argv[])
 
     clock_t end = clock(); 
     time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("Write time is %f seconds", time_spent);
+    printf("Write time is %f seconds\n", time_spent);
 
     munmap(addr, size_read);
     free(threads);
