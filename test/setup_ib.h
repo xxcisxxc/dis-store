@@ -587,7 +587,7 @@ int wait_poll()
     do {
         result = ibv_poll_cq(ib_res.cq, 1, &wc);
     } while (result == 0);
-    if (result < 0 || wc != IBV_WC_SUCCESS)
+    if (result < 0 || wc.status != IBV_WC_SUCCESS)
         die("Wait Failed", 1);
     return result;
 }
