@@ -458,12 +458,7 @@ int setup_ib(int fd, size_t buf_size, int is_server, char *server_name, char *so
     /* Register Memory */
     ib_res.ib_buf_size = buf_size;
     if (!is_server) {
-        //ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-        ib_res.ib_buf = memalign(4096, ib_res.ib_buf_size);
-        memset(ib_res.ib_buf, '1', buf_size);
-        //ib_res.ib_buf = malloc(ib_res.ib_buf_size);
-        //if(read(fd, ib_res.ib_buf, buf_size) != buf_size)
-        //    die("Not enough read", 1);
+        ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     } else {
 #ifndef USE_PMEM
         ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -583,6 +578,18 @@ int post_read_signaled()
 
     ret = ibv_post_send(qp, &send_wr, &bad_send_wr);
     return ret;
+}
+
+int wait_poll()
+{
+    struct ibv_wc wc;
+    int result;
+    do {
+        result = ibv_poll_cq(ib_res.cq, 1, &wc);
+    } while (result == 0);
+    if (result < 0 || wc != IBV_WC_SUCCESS)
+        die("Wait Failed", 1);
+    return result;
 }
 
 #endif /* _SETUP_IB */

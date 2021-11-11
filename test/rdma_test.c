@@ -8,6 +8,7 @@ void *server_write_thread(void *args)
 {
     printf("Start Write.\n");
     post_write_signaled();
+    wait_poll();
     printf("Successful Write.\n");
     return NULL;
 }
@@ -16,6 +17,7 @@ void *server_read_thread(void *args)
 {
     printf("Start Read.\n");
     post_read_signaled();
+    wait_poll();
     printf("Successful Read.\n");
     return NULL;
 }
