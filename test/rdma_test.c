@@ -1,4 +1,4 @@
-#define USE_PMEM "/mnt/pmem0/test"
+//#define USE_PMEM "/mnt/pmem0/test"
 
 #include <time.h> 
 #include <signal.h>
