@@ -9,7 +9,7 @@ def handler(signum, other):
 
 signal.signal(signal.SIGINT, handler)
 
-port = 1000
+port = 5000
 
 for nB in nBytes:
     print("bytes: {}".format(nB))
