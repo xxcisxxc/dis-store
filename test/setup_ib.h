@@ -458,10 +458,11 @@ int setup_ib(int fd, size_t buf_size, int is_server, char *server_name, char *so
     /* Register Memory */
     ib_res.ib_buf_size = buf_size;
     if (!is_server) {
-        ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        //ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        ib_res.ib_buf = memalign(4096, ib_res.ib_buf_size);
         //ib_res.ib_buf = malloc(ib_res.ib_buf_size);
-        if(read(fd, ib_res.ib_buf, buf_size) != buf_size)
-            die("Not enough read", 1);
+        //if(read(fd, ib_res.ib_buf, buf_size) != buf_size)
+        //    die("Not enough read", 1);
     } else {
 #ifndef USE_PMEM
         ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
