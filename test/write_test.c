@@ -48,6 +48,14 @@ void *write_thread(void *arg)
     return NULL;
 }
 
+void *write_thread2(void *arg)
+{
+    void *buf = malloc(size_read);
+    memcpy(buf, addr, size_read);
+    free(buf);
+    return NULL;
+}
+
 #ifdef USE_PMEM
 void *write_pmem_thread(void *arg)
 {
@@ -94,7 +102,7 @@ int main(int argc, char *argv[])
        
     for (i = 0; i < n_threads; i++) {
 #ifndef USE_PMEM
-        pthread_create(threads+i, NULL, write_thread, (void *)i);
+        pthread_create(threads+i, NULL, write_thread2, (void *)i);
 #else
         pthread_create(threads+i, NULL, write_pmem_thread, (void *)i);
 #endif

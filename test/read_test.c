@@ -1,4 +1,4 @@
-#define USE_PMEM
+//#define USE_PMEM
 
 #include <time.h>  
 #include <sys/types.h>
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     
     clock_t end = clock(); 
     time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("Write time is %f seconds", time_spent);
+    printf("Read time is %f seconds\n", time_spent);
 
     munmap(addr, size_read);
     free(threads);
