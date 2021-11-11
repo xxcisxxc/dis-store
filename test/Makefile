@@ -1,28 +1,29 @@
 cc = gcc
-libs = -pthread -lrdmacm -libverbs -lpmem
+libs1 = 
+libs2 = -pthread -lpmem
+libs3 = -pthread -lrdmacm -libverbs -lpmem
 
 tg1 = generate
-tg2 = write
-tg3 = read
-tg4 = rdma
+tg2 = local
+tg3 = rdma
 
 all : $(tg1) $(tg2) $(tg3) $(tg4)
 
 $(tg1) : $(tg1)_test.c
-	$(cc) -o $(tg1) $(tg1)_test.c
+	$(cc) -o $(tg1) $(tg1)_test.c $(libs1)
 
 $(tg2) : $(tg2)_test.c
-	$(cc) -o $(tg2) $(tg2)_test.c -pthread -lpmem
+	$(cc) -o $(tg2) $(tg2)_test.c $(libs2)
 
-
-$(tg3) : $(tg3)_test.c
-	$(cc) -o $(tg3) $(tg3)_test.c -pthread -lpmem
-
-$(tg4) : $(tg4)_test.c
+$(tg3) : $(tg3)_test.c setup_ib.h
 	$(cc) -o $(tg4) $(tg4)_test.c $(libs)
 
+dir1 = 
+dir2 = /mnt/pmem0
+dir3 = /dev/shm
+
 clean:
-	rm -rf $(tg1) $(tg2) $(tg3) $(tg4) *.o *.out *.test *.bench
+	sudo rm -rf $(tg1) $(tg2) $(tg3) $(tg4) *.o *.out *.test *.bench $(dir2)/*.test $(dir3)/*.test
 
 zip:
-	zip test.zip $(tg1)_test.c $(tg2)_test.c $(tg3)_test.c $(tg4)_test.c Makefile
+	zip test.zip $(tg1)_test.c $(tg2)_test.c $(tg3)_test.c setup_ib.h Makefile
