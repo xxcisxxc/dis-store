@@ -1,0 +1,94 @@
+gcc -o generate generate_test.c 
+gcc -o local local_test.c -pthread -lpmem
+gcc -o rdma rdma_test.c -pthread -lrdmacm -libverbs -lpmem
+Threads: 1
+Start test DISK
+Disk Write time is 0.018451 seconds
+Start test RAMDISK
+Ramdisk Write time is 0.004757 seconds
+Start test DRAM
+DRAM Write time is 0.004905 seconds
+Start test PMEM
+PMEM Write time is 0.005498 seconds
+Start Read DISK
+Disk Read time is 0.004731 seconds
+Start test RAMDISK
+Ramdisk Read time is 0.003234 seconds
+Start test DRAM
+DRAM Read time is 0.002344 seconds
+Start test PMEM
+PMEM Read time is 0.002510 seconds
+sudo rm -rf *.test *.bench /mnt/pmem/*.test /dev/shm/*.test
+Threads: 2
+Start test DISK
+Disk Write time is 0.043764 seconds
+Start test RAMDISK
+Ramdisk Write time is 0.010711 seconds
+Start test DRAM
+DRAM Write time is 0.010283 seconds
+Start test PMEM
+PMEM Write time is 0.011681 seconds
+Start Read DISK
+Disk Read time is 0.010038 seconds
+Start test RAMDISK
+Ramdisk Read time is 0.007407 seconds
+Start test DRAM
+DRAM Read time is 0.005359 seconds
+Start test PMEM
+PMEM Read time is 0.005641 seconds
+sudo rm -rf *.test *.bench /mnt/pmem/*.test /dev/shm/*.test
+Threads: 4
+Start test DISK
+Disk Write time is 0.093091 seconds
+Start test RAMDISK
+Ramdisk Write time is 0.022766 seconds
+Start test DRAM
+DRAM Write time is 0.024536 seconds
+Start test PMEM
+PMEM Write time is 0.024893 seconds
+Start Read DISK
+Disk Read time is 0.022422 seconds
+Start test RAMDISK
+Ramdisk Read time is 0.016464 seconds
+Start test DRAM
+DRAM Read time is 0.011223 seconds
+Start test PMEM
+PMEM Read time is 0.012393 seconds
+sudo rm -rf *.test *.bench /mnt/pmem/*.test /dev/shm/*.test
+Threads: 8
+Start test DISK
+Disk Write time is 0.236326 seconds
+Start test RAMDISK
+Ramdisk Write time is 0.068813 seconds
+Start test DRAM
+DRAM Write time is 0.059006 seconds
+Start test PMEM
+PMEM Write time is 0.073515 seconds
+Start Read DISK
+Disk Read time is 0.070548 seconds
+Start test RAMDISK
+Ramdisk Read time is 0.043886 seconds
+Start test DRAM
+DRAM Read time is 0.032869 seconds
+Start test PMEM
+PMEM Read time is 0.034593 seconds
+sudo rm -rf *.test *.bench /mnt/pmem/*.test /dev/shm/*.test
+Threads: 16
+Start test DISK
+Disk Write time is 0.556232 seconds
+Start test RAMDISK
+Ramdisk Write time is 0.168343 seconds
+Start test DRAM
+DRAM Write time is 0.114661 seconds
+Start test PMEM
+PMEM Write time is 0.140528 seconds
+Start Read DISK
+Disk Read time is 0.213200 seconds
+Start test RAMDISK
+Ramdisk Read time is 0.109561 seconds
+Start test DRAM
+DRAM Read time is 0.089065 seconds
+Start test PMEM
+PMEM Read time is 0.112584 seconds
+sudo rm -rf *.test *.bench /mnt/pmem/*.test /dev/shm/*.test
+sudo rm -rf generate local rdma  *.o *.out *.test *.bench /mnt/pmem/*.test /dev/shm/*.test

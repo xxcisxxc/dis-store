@@ -35,7 +35,7 @@ static inline void die_thread(char *msg, int type)
 static size_t size_read;
 static void *addr;
 
-static void **buffers;
+static void *buffers;
 
 void *write_disk_thread(void *arg)
 {
@@ -61,7 +61,9 @@ void *write_ramdisk_thread(void *arg)
 
 void *write_dram_thread(void *arg)
 {
-    void *buf = buffers[(int)arg] = malloc(size_read);
+    void *buf = malloc(size_read);
+    free(buf);
+    buf = buffers + (int)arg * size_read;
     memcpy(buf, addr, size_read);
     return NULL;
 }
@@ -106,9 +108,8 @@ void *read_ramdisk_thread(void *arg)
 
 void *read_dram_thread(void *arg)
 {
-    void *buf = buffers[(int)arg];
+    void *buf = buffers + (int)arg * size_read;
     memcpy(addr, buf, size_read);
-    free(buf);
     return NULL;
 }
 
@@ -151,9 +152,9 @@ int main(int argc, char *argv[])
     if (argc > 2)
         die("Usage: [prog_name] <nthreads[default: 1]>", 0);
     if (argc == 2)
-        n_threads = atoi(argv[2]);
+        n_threads = atoi(argv[1]);
     
-    buffers = malloc(n_threads);
+    buffers = malloc(n_threads * size_read);
     
     pthread_t *threads = (pthread_t *)malloc(sizeof(pthread_t)*n_threads);
     int i;
