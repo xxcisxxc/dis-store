@@ -1,5 +1,4 @@
-import os
-import sys
+import os, sys, signal
 
 os.system("make")
 
@@ -10,11 +9,14 @@ def handler(signum, other):
 
 signal.signal(signal.SIGINT, handler)
 
+port = 1000
+
 for nB in nBytes:
     print("bytes: {}".format(nB))
     sys.stdout.flush()
     os.system("./generate {}".format(nB))
-    os.system("./rdma c 1234 192.168.0.11 ")
+    os.system("./rdma c {} 192.168.0.11 ".format(port))
     os.system("make clean_test")
+    port += 1
 
 os.system("make clean")
