@@ -1,4 +1,4 @@
-import os
+import os, signal
 
 user = "Zhejian"
 name = "test"
@@ -11,7 +11,12 @@ def changeMem(nB):
     with open(config, 'w') as cf:
         cf.write(lines)
 
-#sudo lxc-execute -n test -f test.config -- memcached -u Zhejian
+def handler(signum, other):
+    print("Next Bytes: ", end='')
+
+signal.signal(signal.SIGINT, handler)
+
+print("Next Bytes: ", end='')
 for nB in nBytes:
     os.system("sudo lxc-execute -n {} -f {} -- memcached -u {}".format(name, config, user))
     changeMem(nB)
