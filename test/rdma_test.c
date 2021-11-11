@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
         die("Usage: first argument need to specify s(server) or c(client)", 0);
     
     setup_ib(fd_read, size_read, is_server, server_name, sock_port);
-    close(fd_read);
+    //close(fd_read);
 
     if (!is_server) {
         pthread_t *threads = (pthread_t *)malloc(sizeof(pthread_t)*n_threads);
