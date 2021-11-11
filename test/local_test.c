@@ -12,7 +12,7 @@
 
 #define DIRDISK "."
 #define DIRRAMDISK "/dev/shm"
-#define DIRPM "/mnt/pmem0"
+#define DIRPM "/mnt/pmem"
 
 static inline void die(char *msg, int type)
 {

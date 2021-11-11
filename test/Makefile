@@ -19,8 +19,11 @@ $(tg3) : $(tg3)_test.c setup_ib.h
 	$(cc) -o $(tg3) $(tg3)_test.c $(libs3)
 
 dir1 = 
-dir2 = /mnt/pmem0
+dir2 = /mnt/pmem
 dir3 = /dev/shm
+
+clean_test:
+	sudo rm -rf *.test *.bench $(dir2)/*.test $(dir3)/*.test
 
 clean:
 	sudo rm -rf $(tg1) $(tg2) $(tg3) $(tg4) *.o *.out *.test *.bench $(dir2)/*.test $(dir3)/*.test
