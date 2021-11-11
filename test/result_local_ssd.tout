@@ -1,52 +1,58 @@
 make: Nothing to be done for `all'.
 bytes: 4K
-Write time is 0.171344 seconds
-Read time is 0.000135 seconds
+Write time is 0.171114 seconds
+Read time is 0.000152 seconds
 bytes: 8K
-Write time is 0.000197 seconds
-Read time is 0.000135 seconds
-bytes: 16K
 Write time is 0.000173 seconds
+Read time is 0.000129 seconds
+bytes: 16K
+Write time is 0.000149 seconds
 Read time is 0.000087 seconds
 bytes: 32K
-Write time is 0.000151 seconds
-Read time is 0.000099 seconds
+Write time is 0.000156 seconds
+Read time is 0.000097 seconds
+bytes: 64K
+Write time is 0.000274 seconds
+Read time is 0.000133 seconds
 bytes: 128K
-Write time is 0.000360 seconds
-Read time is 0.000139 seconds
+Write time is 0.000304 seconds
+Read time is 0.000175 seconds
 bytes: 256K
-Write time is 0.000551 seconds
-Read time is 0.000194 seconds
+Write time is 0.000487 seconds
+Read time is 0.000229 seconds
 bytes: 512K
-Write time is 0.000913 seconds
-Read time is 0.000339 seconds
+Write time is 0.000860 seconds
+Read time is 0.000381 seconds
 bytes: 1M
-Write time is 0.001566 seconds
-Read time is 0.000616 seconds
+Write time is 0.001592 seconds
+Read time is 0.000576 seconds
 bytes: 2M
-Write time is 0.003044 seconds
-Read time is 0.001043 seconds
+Write time is 0.002979 seconds
+Read time is 0.001077 seconds
 bytes: 4M
-Write time is 0.005802 seconds
-Read time is 0.001579 seconds
+Write time is 0.005712 seconds
+Read time is 0.001585 seconds
 bytes: 8M
-Write time is 0.011698 seconds
-Read time is 0.002864 seconds
+Write time is 0.011621 seconds
+Read time is 0.002853 seconds
 bytes: 16M
-Write time is 0.024125 seconds
-Read time is 0.005605 seconds
+Write time is 0.024005 seconds
+Read time is 0.005560 seconds
 bytes: 32M
-Write time is 0.047741 seconds
-Read time is 0.011045 seconds
+Write time is 0.048292 seconds
+Read time is 0.010762 seconds
+bytes: 64M
+Write time is 0.095687 seconds
+Read time is 0.021076 seconds
 bytes: 128M
-Write time is 0.183317 seconds
-Read time is 0.041605 seconds
+Write time is 0.190042 seconds
+Read time is 0.041161 seconds
 bytes: 256M
-Write time is 0.382386 seconds
-Read time is 0.082164 seconds
+Write time is 0.382632 seconds
+Read time is 0.081945 seconds
 bytes: 512M
-Write time is 0.802299 seconds
-Read time is 0.161581 seconds
+Write time is 0.760946 seconds
+Read time is 0.161781 seconds
 bytes: 1G
-Write time is 1.501662 seconds
-Read time is 0.322034 seconds
+Write time is 1.528932 seconds
+Read time is 0.322875 seconds

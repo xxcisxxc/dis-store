@@ -1,0 +1,58 @@
+make: Nothing to be done for `all'.
+bytes: 4K
+Write time is 0.000164 seconds
+Read time is 0.000221 seconds
+bytes: 8K
+Write time is 0.000207 seconds
+Read time is 0.000244 seconds
+bytes: 16K
+Write time is 0.000120 seconds
+Read time is 0.000199 seconds
+bytes: 32K
+Write time is 0.000107 seconds
+Read time is 0.000204 seconds
+bytes: 64K
+Write time is 0.000186 seconds
+Read time is 0.000236 seconds
+bytes: 128K
+Write time is 0.000153 seconds
+Read time is 0.000235 seconds
+bytes: 256K
+Write time is 0.000211 seconds
+Read time is 0.000210 seconds
+bytes: 512K
+Write time is 0.000401 seconds
+Read time is 0.000262 seconds
+bytes: 1M
+Write time is 0.000614 seconds
+Read time is 0.000312 seconds
+bytes: 2M
+Write time is 0.000774 seconds
+Read time is 0.000247 seconds
+bytes: 4M
+Write time is 0.001215 seconds
+Read time is 0.000247 seconds
+bytes: 8M
+Write time is 0.002484 seconds
+Read time is 0.000254 seconds
+bytes: 16M
+Write time is 0.005558 seconds
+Read time is 0.000292 seconds
+bytes: 32M
+Write time is 0.011377 seconds
+Read time is 0.000263 seconds
+bytes: 64M
+Write time is 0.022756 seconds
+Read time is 0.000267 seconds
+bytes: 128M
+Write time is 0.045148 seconds
+Read time is 0.000270 seconds
+bytes: 256M
+Write time is 0.088770 seconds
+Read time is 0.000268 seconds
+bytes: 512M
+Write time is 0.175454 seconds
+Read time is 0.000268 seconds
+bytes: 1G
+Write time is 0.347047 seconds
+Read time is 0.000296 seconds
