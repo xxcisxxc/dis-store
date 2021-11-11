@@ -16,7 +16,7 @@ $(tg2) : $(tg2)_test.c
 	$(cc) -o $(tg2) $(tg2)_test.c $(libs2)
 
 $(tg3) : $(tg3)_test.c setup_ib.h
-	$(cc) -o $(tg4) $(tg4)_test.c $(libs)
+	$(cc) -o $(tg3) $(tg3)_test.c $(libs3)
 
 dir1 = 
 dir2 = /mnt/pmem0

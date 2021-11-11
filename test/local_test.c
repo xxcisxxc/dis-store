@@ -61,7 +61,7 @@ void *write_ramdisk_thread(void *arg)
 
 void *write_dram_thread(void *arg)
 {
-    void *buf = buffers[int(arg)] = malloc(size_read);
+    void *buf = buffers[(int)arg] = malloc(size_read);
     memcpy(buf, addr, size_read);
     return NULL;
 }
@@ -106,7 +106,7 @@ void *read_ramdisk_thread(void *arg)
 
 void *read_dram_thread(void *arg)
 {
-    void *buf = buffers[int(arg)]
+    void *buf = buffers[(int)arg];
     memcpy(addr, buf, size_read);
     free(buf);
     return NULL;
