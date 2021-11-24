@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
     double time_spent, begin, end;
 
     /*** RAMDISK ***/
-    printf("Start test RAMDISK\n");
+    /*printf("Start test RAMDISK\n");
     begin = clock();
     for (i = 0; i < n_threads; i++) {
         pthread_create(threads+i, NULL, write_ramdisk_thread, (void *)i);
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
     }
     end = clock();
     time_spent = (end - begin) / CLOCKS_PER_SEC;
-    printf("Ramdisk Write time is %f seconds\n", time_spent);
+    printf("Ramdisk Write time is %f seconds\n", time_spent);*/
 
     /*** DISK ***/
     printf("Start test DISK\n");
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
     printf("Disk Write time is %f seconds\n", time_spent);
 
     /*** DRAM ***/
-    printf("Start test DRAM\n");
+    /*printf("Start test DRAM\n");
     begin = clock();
     for (i = 0; i < n_threads; i++) {
         pthread_create(threads+i, NULL, write_dram_thread, (void *)i);
@@ -186,10 +186,10 @@ int main(int argc, char *argv[])
     }
     end = clock();
     time_spent = (end - begin) / CLOCKS_PER_SEC;
-    printf("DRAM Write time is %f seconds\n", time_spent);
+    printf("DRAM Write time is %f seconds\n", time_spent);*/
 
     /*** PMEM ***/
-    printf("Start test PMEM\n");
+    /*printf("Start test PMEM\n");
     begin = clock();
     for (i = 0; i < n_threads; i++) {
         pthread_create(threads+i, NULL, write_pmem_thread, (void *)i);
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
     }
     end = clock();
     time_spent = (end - begin) / CLOCKS_PER_SEC;
-    printf("PMEM Write time is %f seconds\n", time_spent);
+    printf("PMEM Write time is %f seconds\n", time_spent);*/
 
     munmap(addr, size_read);
 
@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
     printf("Disk Read time is %f seconds\n", time_spent);
 
     /*** RAMDISK ***/
-    printf("Start test RAMDISK\n");
+    /*printf("Start test RAMDISK\n");
     begin = clock();
     for (i = 0; i < n_threads; i++) {
         pthread_create(threads+i, NULL, read_ramdisk_thread, (void *)i);
@@ -237,10 +237,10 @@ int main(int argc, char *argv[])
     }
     end = clock();
     time_spent = (end - begin) / CLOCKS_PER_SEC;
-    printf("Ramdisk Read time is %f seconds\n", time_spent);
+    printf("Ramdisk Read time is %f seconds\n", time_spent);*/
 
     /*** DRAM ***/
-    printf("Start test DRAM\n");
+    /*printf("Start test DRAM\n");
     begin = clock();
     for (i = 0; i < n_threads; i++) {
         pthread_create(threads+i, NULL, read_dram_thread, (void *)i);
@@ -250,10 +250,10 @@ int main(int argc, char *argv[])
     }
     end = clock();
     time_spent = (end - begin) / CLOCKS_PER_SEC;
-    printf("DRAM Read time is %f seconds\n", time_spent);
+    printf("DRAM Read time is %f seconds\n", time_spent);*/
 
     /*** PMEM ***/
-    printf("Start test PMEM\n");
+    /*printf("Start test PMEM\n");
     begin = clock();
     for (i = 0; i < n_threads; i++) {
         pthread_create(threads+i, NULL, read_pmem_thread, (void *)i);
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
     }
     end = clock();
     time_spent = (end - begin) / CLOCKS_PER_SEC;
-    printf("PMEM Read time is %f seconds\n", time_spent);
+    printf("PMEM Read time is %f seconds\n", time_spent);*/
 
     munmap(addr, size_read);
     free(threads);
