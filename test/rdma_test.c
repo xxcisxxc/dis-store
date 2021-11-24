@@ -91,6 +91,11 @@ int main(int argc, char *argv[])
         clock_t end2 = clock(); 
         read_time += (double)(end2 - begin2) / CLOCKS_PER_SEC;
         printf("Read time is %f seconds", read_time);
+    } else {
+        while (1) {
+            print_buf();
+            sleep(5);
+        }
     }
 
     if (signal(SIGINT, sigint_handler) == SIG_ERR)

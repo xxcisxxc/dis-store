@@ -67,6 +67,15 @@ inline void die(char *msg, int type)
 	exit(1);
 }
 
+void print_buf()
+{
+    int *buf = (int *)ib_res.ib_buf;
+    int i, size = ib_res.ib_buf_size / sizeof(int);
+    for (i = 0; i < size; i++)
+        printf("%d, ", buf[i]);
+    printf("\n");
+}
+
 ssize_t sock_read(int sock_fd, void *buffer, size_t len)
 {
     ssize_t nr, tot_read;
