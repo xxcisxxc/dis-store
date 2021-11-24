@@ -3,7 +3,8 @@ import sys
 
 os.system("make")
 
-nBytes = ['4K', '8K', '16K', '32K', '64K', '128K', '256K', '512K', '1M', '2M', '4M', '8M', '16M', '32M','64M', '128M', '256M', '512M', '1G']
+#nBytes = ['512', '1K', '2K', '4K', '8K', '16K', '32K']
+nBytes = ['1K', '1K', '1K', '1K']
 
 for nB in nBytes:
     print("bytes: {}".format(nB))
