@@ -136,6 +136,11 @@ int main(int argc, char *argv[])
         die("Memory Mapped", 1);
     close(fd_read);
 
+    int j;
+    char c, *addr_cache = (char *)addr;
+    for (j = 0; j < size_read; j++)
+        c = addr_cache[j];
+
     /* Open write file to write from memory-mapped file */
     int n_threads = 1;
     if (argc > 2)

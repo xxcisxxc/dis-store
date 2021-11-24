@@ -23,7 +23,7 @@ dir2 = /mnt/pmem
 dir3 = /dev/shm
 
 clean_test:
-	sudo rm -rf *.test *.bench $(dir2)/*.test $(dir3)/*.test
+	@sudo rm -rf *.test *.bench $(dir2)/*.test $(dir3)/*.test
 
 clean:
 	sudo rm -rf $(tg1) $(tg2) $(tg3) $(tg4) *.o *.out *.test *.bench $(dir2)/*.test $(dir3)/*.test
