@@ -69,10 +69,10 @@ inline void die(char *msg, int type)
 
 void print_buf()
 {
-    int *buf = (int *)ib_res.ib_buf;
-    int i, size = ib_res.ib_buf_size / sizeof(int);
+    char *buf = (char *)ib_res.ib_buf;
+    int i, size = ib_res.ib_buf_size / sizeof(char);
     for (i = 0; i < size; i++)
-        printf("%d, ", buf[i]);
+        printf("%c, ", buf[i]);
     printf("\n");
 }
 
