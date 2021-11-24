@@ -149,19 +149,6 @@ int main(int argc, char *argv[])
     int i;
     double time_spent, begin, end;
 
-    /*** RAMDISK ***/
-    printf("Start test RAMDISK\n");
-    begin = clock();
-    for (i = 0; i < n_threads; i++) {
-        pthread_create(threads+i, NULL, write_ramdisk_thread, (void *)i);
-    }
-    for (i = 0; i < n_threads; i++) {
-        pthread_join(threads[i], NULL);
-    }
-    end = clock();
-    time_spent = (end - begin) / CLOCKS_PER_SEC;
-    printf("Ramdisk Write time is %f seconds\n", time_spent);
-
     /*** DISK ***/
     printf("Start test DISK\n");
     begin = clock();
@@ -174,6 +161,19 @@ int main(int argc, char *argv[])
     end = clock();
     time_spent = (end - begin) / CLOCKS_PER_SEC;
     printf("Disk Write time is %f seconds\n", time_spent);
+
+    /*** RAMDISK ***/
+    printf("Start test RAMDISK\n");
+    begin = clock();
+    for (i = 0; i < n_threads; i++) {
+        pthread_create(threads+i, NULL, write_ramdisk_thread, (void *)i);
+    }
+    for (i = 0; i < n_threads; i++) {
+        pthread_join(threads[i], NULL);
+    }
+    end = clock();
+    time_spent = (end - begin) / CLOCKS_PER_SEC;
+    printf("Ramdisk Write time is %f seconds\n", time_spent);
 
     /*** DRAM ***/
     printf("Start test DRAM\n");
