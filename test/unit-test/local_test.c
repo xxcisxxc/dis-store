@@ -23,15 +23,6 @@ static inline void die(char *msg, int type)
 	exit(1);
 }
 
-static inline void die_thread(char *msg, int type)
-{
-	if (type)
-		perror(msg);
-	else
-		fprintf(stderr, "%s\n", msg);
-	pthread_exit(NULL);
-}
-
 static size_t size_read;
 static void *addr;
 
@@ -43,7 +34,7 @@ void *write_disk_thread(void *arg)
     sprintf(name_buf, "%s/write%d.test", DIRDISK, (int)arg);
     int fd_write = creat(name_buf, 0666);
     if (write(fd_write, addr, size_read) != size_read)
-        die_thread("Not enough write!", 1);
+        die("Not enough write!", 1);
     close(fd_write);
     return NULL;
 }
@@ -54,16 +45,14 @@ void *write_ramdisk_thread(void *arg)
     sprintf(name_buf, "%s/write%d.test", DIRRAMDISK, (int)arg);
     int fd_write = creat(name_buf, 0666);
     if (write(fd_write, addr, size_read) != size_read)
-        die_thread("Not enough write!", 1);
+        die("Not enough write!", 1);
     close(fd_write);
     return NULL;
 }
 
 void *write_dram_thread(void *arg)
 {
-    void *buf = malloc(size_read);
-    free(buf);
-    buf = buffers + (int)arg * size_read;
+    void *buf = buffers + (int)arg * size_read;
     memcpy(buf, addr, size_read);
     return NULL;
 }
@@ -90,7 +79,7 @@ void *read_disk_thread(void *arg)
     sprintf(name_buf, "%s/write%d.test", DIRDISK, (int)arg);
     int fd_write = open(name_buf, O_RDONLY);
     if (read(fd_write, addr, size_read) != size_read)
-        die_thread("Not enough Read!", 1);
+        die("Not enough Read!", 1);
     close(fd_write);
     return NULL;
 }
@@ -101,7 +90,7 @@ void *read_ramdisk_thread(void *arg)
     sprintf(name_buf, "%s/write%d.test", DIRRAMDISK, (int)arg);
     int fd_write = open(name_buf, O_RDONLY);
     if (read(fd_write, addr, size_read) != size_read)
-        die_thread("Not enough Read!", 1);
+        die("Not enough Read!", 1);
     close(fd_write);
     return NULL;
 }
