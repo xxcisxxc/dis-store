@@ -15,9 +15,9 @@
 #define DIRRAMDISK "/dev/shm"
 #define DIRPM "/mnt/pmem"
 
-#define N_EXPR 20
+#define N_EXPR 1
 
-#define USEC_SEC 1000000
+#define USEC_SEC 1000
 
 static inline void die(char *msg, int type)
 {
@@ -33,48 +33,24 @@ static void *addr;
 
 static void *buffers;
 
-void *write_disk_thread(void *arg)
+void *write_thread_d(void *arg)
 {
-    char name_buf[100];
-    sprintf(name_buf, "%s/disk%d.test", DIRDISK, (int)arg);
-    int fd_write = creat(name_buf, 0666);
-    if (write(fd_write, addr, size_read) != size_read)
+    if (write(*(int *)arg, addr, size_read) != size_read)
         die("Not enough write!", 1);
-    close(fd_write);
+    fsync(*(int *)arg);
     return NULL;
 }
 
-void *write_ramdisk_thread(void *arg)
+void *write_thread_r(void *arg)
 {
-    char name_buf[100];
-    sprintf(name_buf, "%s/write%d.test", DIRRAMDISK, (int)arg);
-    int fd_write = creat(name_buf, 0666);
-    if (write(fd_write, addr, size_read) != size_read)
-        die("Not enough write!", 1);
-    close(fd_write);
+    memcpy(arg, addr, size_read);
     return NULL;
 }
 
-void *write_dram_thread(void *arg)
+void *write_thread_p(void *arg)
 {
-    void *buf = buffers + (int)arg * size_read;
-    memcpy(buf, addr, size_read);
-    return NULL;
-}
-
-void *write_pmem_thread(void *arg)
-{
-    char name_buf[100];
-    sprintf(name_buf, "%s/write%d.test", DIRPM, (int)arg);
-    size_t mapped_size;
-    void *pmemaddr = pmem_map_file(name_buf, size_read, 
-        PMEM_FILE_CREATE, 0666, &mapped_size, NULL);
-    if (pmemaddr == NULL)
-        die("Can't map pmem file", 1);
-    if (mapped_size != size_read)
-        die("Not fully mapped", 0);
-    pmem_memcpy_persist(pmemaddr, addr, size_read);
-    pmem_unmap(pmemaddr, mapped_size);
+    pmem_memcpy_persist(arg, addr, size_read);
+    pmem_persist(arg, size_read);
     return NULL;
 }
 
@@ -159,64 +135,149 @@ int main(int argc, char *argv[])
 
     /*** DISK ***/
     printf("Start test DISK WRITE\n");
-    *spent = 0;
+    total_t = 0;
     for (i = 0; i < N_EXPR; i++) {
+        int k = i;
         if (!fork()) {
+            int *fd_writes = (int *)malloc(sizeof(int)*n_threads);
+            for (i = 0; i < n_threads; i++) {
+                char name_buf[100];
+                sprintf(name_buf, "%s/disk%d_%d.test", DIRDISK, k, i);
+                fd_writes[i] = creat(name_buf, 0666);
+            }
             begin = clock();
             for (i = 0; i < n_threads; i++) {
-                pthread_create(threads+i, NULL, write_disk_thread, (void *)i);
+                pthread_create(threads+i, NULL, write_thread_d, fd_writes+i);
             }
             for (i = 0; i < n_threads; i++) {
                 pthread_join(threads[i], NULL);
             }
             end = clock();
             total_t = (end - begin) / CLOCKS_PER_SEC;
-            *spent += total_t * USEC_SEC;
+            *spent = total_t * USEC_SEC;
+            for (i = 0; i < n_threads; i++) {
+                char name_buf[100];
+                sprintf(name_buf, "%s/disk%d_%d.test", DIRDISK, k, i);
+                close(fd_writes[i]);
+                remove(name_buf);
+            }
+            free(fd_writes);
+            exit(0);
         } else {
             wait(NULL);
             total_t += *spent;
         }
     }
-    printf("%f\n", spent);
+    printf("%f\nEnd test DISK WRITE\n", total_t/N_EXPR);
 
     /*** RAMDISK ***/
-    /*printf("Start test RAMDISK\n");
-    begin = clock();
-    for (i = 0; i < n_threads; i++) {
-        pthread_create(threads+i, NULL, write_ramdisk_thread, (void *)i);
+    printf("Start test RAMDISK WRITE\n");
+    total_t = 0;
+    for (i = 0; i < N_EXPR; i++) {
+        int k = i;
+        if (!fork()) {
+            int *fd_writes = (int *)malloc(sizeof(int)*n_threads);
+            for (i = 0; i < n_threads; i++) {
+                char name_buf[100];
+                sprintf(name_buf, "%s/ramd%d_%d.test", DIRRAMDISK, k, i);
+                fd_writes[i] = creat(name_buf, 0666);
+            }
+            begin = clock();
+            for (i = 0; i < n_threads; i++) {
+                pthread_create(threads+i, NULL, write_thread_d, fd_writes+i);
+            }
+            for (i = 0; i < n_threads; i++) {
+                pthread_join(threads[i], NULL);
+            }
+            end = clock();
+            total_t = (end - begin) / CLOCKS_PER_SEC;
+            *spent = total_t * USEC_SEC;
+            for (i = 0; i < n_threads; i++) {
+                char name_buf[100];
+                sprintf(name_buf, "%s/ramd%d_%d.test", DIRRAMDISK, k, i);
+                close(fd_writes[i]);
+                remove(name_buf);
+            }
+            free(fd_writes);
+            exit(0);
+        } else {
+            wait(NULL);
+            total_t += *spent;
+        }
     }
-    for (i = 0; i < n_threads; i++) {
-        pthread_join(threads[i], NULL);
-    }
-    end = clock();
-    time_spent = (end - begin) / CLOCKS_PER_SEC;
-    printf("Ramdisk Write time is %f seconds\n", time_spent);*/
+    printf("%f\nEnd test RAMDISK WRITE\n", total_t/N_EXPR);
 
-    /*** DRAM ***/
-    /*printf("Start test DRAM\n");
-    begin = clock();
-    for (i = 0; i < n_threads; i++) {
-        pthread_create(threads+i, NULL, write_dram_thread, (void *)i);
+    /*** DRAM (may be deleted) ***/
+    printf("Start test DRAM WRITE\n");
+    total_t = 0;
+    for (i = 0; i < N_EXPR; i++) {
+        int k = i;
+        if (!fork()) {
+            buffers = malloc(size_read);
+            begin = clock();
+            for (i = 0; i < n_threads; i++) {
+                pthread_create(threads+i, NULL, write_thread_r, buffers);
+            }
+            for (i = 0; i < n_threads; i++) {
+                pthread_join(threads[i], NULL);
+            }
+            end = clock();
+            total_t = (end - begin) / CLOCKS_PER_SEC;
+            *spent = total_t * USEC_SEC;
+            free(buffers);
+            exit(0);
+        } else {
+            wait(NULL);
+            total_t += *spent;
+        }
     }
-    for (i = 0; i < n_threads; i++) {
-        pthread_join(threads[i], NULL);
-    }
-    end = clock();
-    time_spent = (end - begin) / CLOCKS_PER_SEC;
-    printf("DRAM Write time is %f seconds\n", time_spent);*/
+    printf("%f\nEnd test DRAM WRITE\n", total_t/N_EXPR);
 
     /*** PMEM ***/
-    /*printf("Start test PMEM\n");
-    begin = clock();
-    for (i = 0; i < n_threads; i++) {
-        pthread_create(threads+i, NULL, write_pmem_thread, (void *)i);
+    printf("Start test PMEM WRITE\n");
+    total_t = 0;
+    for (i = 0; i < N_EXPR; i++) {
+        int k = i;
+        if (!fork()) {
+            void **pmemaddrs = malloc(n_threads);
+            for (i = 0; i < n_threads; i++) {
+                char name_buf[100];
+                sprintf(name_buf, "%s/pmem%d_%d.test", DIRPM, k, i);
+                size_t mapped_size;
+                int is_pmem;
+                pmemaddrs[i] = pmem_map_file(name_buf, size_read, 
+                    PMEM_FILE_CREATE, 0666, &mapped_size, &is_pmem);
+                if (pmemaddrs[i] == NULL)
+                    die("Can't map pmem file", 1);
+                if (mapped_size != size_read)
+                    die("Not fully mapped", 0);
+                if (is_pmem != 1)
+                    die("Not a pmem", 0);
+            }
+            begin = clock();
+            for (i = 0; i < n_threads; i++) {
+                pthread_create(threads+i, NULL, write_thread_p, pmemaddrs[i]);
+            }
+            for (i = 0; i < n_threads; i++) {
+                pthread_join(threads[i], NULL);
+            }
+            end = clock();
+            total_t = (end - begin) / CLOCKS_PER_SEC;
+            *spent = total_t * USEC_SEC;
+            for (i = 0; i < n_threads; i++) {
+                char name_buf[100];
+                sprintf(name_buf, "%s/pmem%d_%d.test", DIRPM, k, i);
+                pmem_unmap(pmemaddrs[i], size_read);
+                remove(name_buf);
+            }
+            free(pmemaddrs);
+            exit(0);
+        } else {
+            wait(NULL);
+            total_t += *spent;
+        }
     }
-    for (i = 0; i < n_threads; i++) {
-        pthread_join(threads[i], NULL);
-    }
-    end = clock();
-    time_spent = (end - begin) / CLOCKS_PER_SEC;
-    printf("PMEM Write time is %f seconds\n", time_spent);*/
+    printf("%f\nEnd test PMEM WRITE\n", total_t/N_EXPR);
 
     munmap(addr, size_read);
 
