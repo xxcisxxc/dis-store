@@ -1,6 +1,7 @@
 #include <time.h>  
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +14,10 @@
 #define DIRDISK "."
 #define DIRRAMDISK "/dev/shm"
 #define DIRPM "/mnt/pmem"
+
+#define N_EXPR 20
+
+#define USEC_SEC 1000000
 
 static inline void die(char *msg, int type)
 {
@@ -31,7 +36,7 @@ static void *buffers;
 void *write_disk_thread(void *arg)
 {
     char name_buf[100];
-    sprintf(name_buf, "%s/write%d.test", DIRDISK, (int)arg);
+    sprintf(name_buf, "%s/disk%d.test", DIRDISK, (int)arg);
     int fd_write = creat(name_buf, 0666);
     if (write(fd_write, addr, size_read) != size_read)
         die("Not enough write!", 1);
@@ -76,7 +81,7 @@ void *write_pmem_thread(void *arg)
 void *read_disk_thread(void *arg)
 {
     char name_buf[100];
-    sprintf(name_buf, "%s/write%d.test", DIRDISK, (int)arg);
+    sprintf(name_buf, "%s/disk%d.test", DIRDISK, (int)arg);
     int fd_write = open(name_buf, O_RDONLY);
     if (read(fd_write, addr, size_read) != size_read)
         die("Not enough Read!", 1);
@@ -136,23 +141,43 @@ int main(int argc, char *argv[])
         die("Memory Mapped", 1);
     close(fd_read);
 
-    int j;
-    char c, *addr_cache = (char *)addr;
-    for (j = 0; j < size_read; j++)
-        c = addr_cache[j];
-
     /* Open write file to write from memory-mapped file */
     int n_threads = 1;
     if (argc > 2)
         die("Usage: [prog_name] <nthreads[default: 1]>", 0);
     if (argc == 2)
         n_threads = atoi(argv[1]);
-    
-    buffers = malloc(n_threads * size_read);
-    
+    /* Open correspoding number of threads */    
     pthread_t *threads = (pthread_t *)malloc(sizeof(pthread_t)*n_threads);
+
+    /* Time spent between processes */
+    double total_t, begin, end;
+    double *spent = (double *)
+        mmap(NULL, sizeof(double), PROT_READ|PROT_WRITE, MAP_ANON|MAP_SHARED, -1, 0);
+
     int i;
-    double time_spent, begin, end;
+
+    /*** DISK ***/
+    printf("Start test DISK WRITE\n");
+    *spent = 0;
+    for (i = 0; i < N_EXPR; i++) {
+        if (!fork()) {
+            begin = clock();
+            for (i = 0; i < n_threads; i++) {
+                pthread_create(threads+i, NULL, write_disk_thread, (void *)i);
+            }
+            for (i = 0; i < n_threads; i++) {
+                pthread_join(threads[i], NULL);
+            }
+            end = clock();
+            total_t = (end - begin) / CLOCKS_PER_SEC;
+            *spent += total_t * USEC_SEC;
+        } else {
+            wait(NULL);
+            total_t += *spent;
+        }
+    }
+    printf("%f\n", spent);
 
     /*** RAMDISK ***/
     /*printf("Start test RAMDISK\n");
@@ -166,19 +191,6 @@ int main(int argc, char *argv[])
     end = clock();
     time_spent = (end - begin) / CLOCKS_PER_SEC;
     printf("Ramdisk Write time is %f seconds\n", time_spent);*/
-
-    /*** DISK ***/
-    printf("Start test DISK\n");
-    begin = clock();
-    for (i = 0; i < n_threads; i++) {
-        pthread_create(threads+i, NULL, write_disk_thread, (void *)i);
-    }
-    for (i = 0; i < n_threads; i++) {
-        pthread_join(threads[i], NULL);
-    }
-    end = clock();
-    time_spent = (end - begin) / CLOCKS_PER_SEC;
-    printf("Disk Write time is %f seconds\n", time_spent);
 
     /*** DRAM ***/
     /*printf("Start test DRAM\n");
@@ -214,12 +226,12 @@ int main(int argc, char *argv[])
      ***************
      ***************/
     
-    addr = mmap(NULL, size_read, PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    /*addr = mmap(NULL, size_read, PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
     if (addr == NULL)
-        die("Memory Mapped", 1);
+        die("Memory Mapped", 1);*/
 
     /*** DISK ***/
-    printf("Start Read DISK\n");
+    /*printf("Start Read DISK\n");
     begin = clock();
     for (i = 0; i < n_threads; i++) {
         pthread_create(threads+i, NULL, read_disk_thread, (void *)i);
@@ -229,7 +241,7 @@ int main(int argc, char *argv[])
     }
     end = clock();
     time_spent = (end - begin) / CLOCKS_PER_SEC;
-    printf("Disk Read time is %f seconds\n", time_spent);
+    printf("Disk Read time is %f seconds\n", time_spent);*/
 
     /*** RAMDISK ***/
     /*printf("Start test RAMDISK\n");
@@ -270,9 +282,9 @@ int main(int argc, char *argv[])
     time_spent = (end - begin) / CLOCKS_PER_SEC;
     printf("PMEM Read time is %f seconds\n", time_spent);*/
 
-    munmap(addr, size_read);
+    //munmap(addr, size_read);
     free(threads);
-    free(buffers);
+    //free(buffers);
 
     return 0;
 }
