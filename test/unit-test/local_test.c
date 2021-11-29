@@ -348,7 +348,6 @@ int main(int argc, char *argv[])
                 char name_buf[100];
                 sprintf(name_buf, "%s/pmem%d_%d.test", DIRPM, k, i);
                 pmem_unmap(pmemaddr_writes[i], size_file);
-                //remove(name_buf);
             }
             free(pmemaddr_writes);
             exit(0);
