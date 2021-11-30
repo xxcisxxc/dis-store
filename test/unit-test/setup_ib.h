@@ -292,10 +292,10 @@ int modify_qp_to_rts(struct ibv_qp *qp, uint32_t target_qp_num, uint16_t target_
             .max_rd_atomic = 1,
         };
 
-        ret = ibv_modify_qp(qp, &qp_attr,
-                            IBV_QP_STATE | IBV_QP_TIMEOUT |
-                            IBV_QP_RETRY_CNT | IBV_QP_RNR_RETRY |
-                            IBV_QP_SQ_PSN | IBV_QP_MAX_QP_RD_ATOMIC);
+        ret = ibv_modify_qp (qp, &qp_attr,
+                             IBV_QP_STATE | IBV_QP_TIMEOUT |
+                             IBV_QP_RETRY_CNT | IBV_QP_RNR_RETRY |
+                             IBV_QP_SQ_PSN | IBV_QP_MAX_QP_RD_ATOMIC);
         if (ret != 0)
             die("Failed to modify qp to RTS", 1);
     }
@@ -383,36 +383,36 @@ int connect_qp_client(char *server_name, char *sock_port)
     local_qp_info.rkey    = ib_res.mr->rkey;
     local_qp_info.raddr   = (uintptr_t) ib_res.ib_buf;
    
-    /* send qp_info to server */
+    /* send qp_info to server */    
     ret = sock_set_qp_info(peer_sockfd, &local_qp_info);
-    if (ret != 0)
+    if (ret != 0) 
         die("Failed to send qp_info to server", 1);
 
-    /* get qp_info from server */
+    /* get qp_info from server */    
     ret = sock_get_qp_info(peer_sockfd, &remote_qp_info);
-    if (ret != 0)
+    if (ret != 0) 
         die("Failed to get qp_info from server", 1);
     
     /* store rkey and raddr info */
     ib_res.rkey  = remote_qp_info.rkey;
     ib_res.raddr = remote_qp_info.raddr;
     
-    /* change QP state to RTS */
+    /* change QP state to RTS */    	
     ret = modify_qp_to_rts(ib_res.qp, remote_qp_info.qp_num, 
 			    remote_qp_info.lid);
     if (ret != 0) 
         die("Failed to modify qp to rts", 1);
 
     /* sync with server */
-    n = sock_write(peer_sockfd, sock_buf, sizeof(SOCK_SYNC_MSG));
+    n = sock_write (peer_sockfd, sock_buf, sizeof(SOCK_SYNC_MSG));
     if (n != sizeof(SOCK_SYNC_MSG))
         die("Failed to write sync to client", 1);
     
-    n = sock_read(peer_sockfd, sock_buf, sizeof(SOCK_SYNC_MSG));
+    n = sock_read (peer_sockfd, sock_buf, sizeof(SOCK_SYNC_MSG));
     if (n != sizeof(SOCK_SYNC_MSG))
         die("Failed to receive sync from client", 1);
 
-    close(peer_sockfd);
+    close (peer_sockfd);
     return 0;
 }
 
@@ -470,11 +470,12 @@ int setup_ib(int fd, size_t buf_size, int is_server, char *server_name, char *so
         ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     } else {
 #ifndef USE_PMEM
-        ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
+        ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 #else
         ib_res.ib_buf = pmem_map_file(USE_PMEM, buf_size, PMEM_FILE_CREATE, 0666, NULL, NULL);
 #endif
     }
+    //ib_res.ib_buf = memalign(4096, ib_res.ib_buf_size);
     if (ib_res.ib_buf == NULL)
         die("Failed to allocate ib_buf", 1);
 
