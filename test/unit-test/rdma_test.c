@@ -4,7 +4,7 @@
 #include <signal.h>
 #include "setup_ib.h"
 
-#define N_EXPR 100
+#define N_EXPR 1
 #define USEC_SEC 1000
 
 void *server_write_thread(void *args)
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 
         total_t = 0;
         for (i = 0; i < N_EXPR; i++) {
-            if (!fork()) {
+            if (1) {
                 begin = clock();
                 for (i = 0; i < n_threads; i++) {
                     pthread_create(threads+i, NULL, server_write_thread, NULL);
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 
         total_t = 0;
         for (i = 0; i < N_EXPR; i++) {
-            if (!fork()) {
+            if (1) {
                 begin = clock();
                 for (i = 0; i < n_threads; i++) {
                     pthread_create(threads+i, NULL, server_read_thread, NULL);
