@@ -9,19 +9,15 @@
 
 void *server_write_thread(void *args)
 {
-    printf("Start Write.\n");
     post_write_signaled();
     //wait_poll();
-    printf("Successful Write.\n");
     return NULL;
 }
 
 void *server_read_thread(void *args)
 {
-    printf("Start Read.\n");
     post_read_signaled();
     //wait_poll();
-    printf("Successful Read.\n");
     return NULL;
 }
 
@@ -72,6 +68,7 @@ int main(int argc, char *argv[])
         double *spent = (double *)
             mmap(NULL, sizeof(double), PROT_READ|PROT_WRITE, MAP_ANON|MAP_SHARED, -1, 0);
 
+        printf("Start test RDMA WRITE\n");
         total_t = 0;
         for (i = 0; i < N_EXPR; i++) {
             if (!fork()) {
@@ -91,8 +88,9 @@ int main(int argc, char *argv[])
                 total_t += *spent;
             }
         }
-        printf("Write time is %f seconds\n", total_t/N_EXPR);
+        printf("%f\nEnd test RDMA WRITE\n", total_t/N_EXPR);
 
+        printf("Start test RDMA READ\n");
         total_t = 0;
         for (i = 0; i < N_EXPR; i++) {
             if (!fork()) {
@@ -112,12 +110,11 @@ int main(int argc, char *argv[])
                 total_t += *spent;
             }
         }
-        printf("Read time is %f seconds\n", total_t/N_EXPR);
+        printf("%f\nEnd test RDMA READ\n", total_t/N_EXPR);
         free(threads);
     } else {
         while (1) {
             print_buf();
-            sleep(5);
         }
     }
 

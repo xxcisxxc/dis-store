@@ -336,7 +336,7 @@ int connect_qp_server(char *sock_port)
     if (ret != 0) 
         die("Failed to get qp_info from client", 1);
     
-    /* send qp_info to client */    
+    /* send qp_info to client */
     ret = sock_set_qp_info(peer_sockfd, &local_qp_info);
     if (ret != 0) 
         die("Failed to send qp_info to client", 1);
@@ -345,7 +345,7 @@ int connect_qp_server(char *sock_port)
     ib_res.rkey  = remote_qp_info.rkey;
     ib_res.raddr = remote_qp_info.raddr;
 
-    /* change send QP state to RTS */    	
+    /* change send QP state to RTS */
     ret = modify_qp_to_rts(ib_res.qp, remote_qp_info.qp_num, 
 			    remote_qp_info.lid);
     if (ret != 0) 
