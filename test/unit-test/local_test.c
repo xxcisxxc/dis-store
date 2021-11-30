@@ -265,7 +265,6 @@ int main(int argc, char *argv[])
     total_t = 0;
     void *buffers = malloc(size_file);
     for (i = 0; i < N_EXPR; i++) {
-        int k = i;
         if (!fork()) {
             begin = clock();
             for (i = 0; i < n_threads; i++) {
@@ -288,7 +287,6 @@ int main(int argc, char *argv[])
     printf("Start test DRAM READ\n");
     total_t = 0;
     for (i = 0; i < N_EXPR; i++) {
-        int k = i;
         if (!fork()) {
             begin = clock();
             for (i = 0; i < n_threads; i++) {
