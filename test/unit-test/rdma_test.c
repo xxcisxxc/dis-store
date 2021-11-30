@@ -61,67 +61,70 @@ int main(int argc, char *argv[])
     setup_ib(fd_read, size_read, is_server, server_name, sock_port);
     close(fd_read);
 
-    if (!is_server) {
-        pthread_t *threads = (pthread_t *)malloc(sizeof(pthread_t)*n_threads);
-        int i;
-        double total_t, begin, end;
-        double *spent = (double *)
-            mmap(NULL, sizeof(double), PROT_READ|PROT_WRITE, MAP_ANON|MAP_SHARED, -1, 0);
-
-        printf("Start test RDMA WRITE\n");
-        total_t = 0;
-        for (i = 0; i < N_EXPR; i++) {
-            if (!fork()) {
-                begin = clock();
-                for (i = 0; i < n_threads; i++) {
-                    pthread_create(threads+i, NULL, server_write_thread, NULL);
-                }
-                for (i = 0; i < n_threads; i++) {
-                    pthread_join(threads[i], NULL);
-                }
-                end = clock();
-                total_t = (end - begin) / CLOCKS_PER_SEC;
-                *spent = total_t * USEC_SEC;
-                exit(0);
-            } else {
-                wait(NULL);
-                total_t += *spent;
-            }
-        }
-        printf("%f\nEnd test RDMA WRITE\n", total_t/N_EXPR);
-
-        printf("Start test RDMA READ\n");
-        total_t = 0;
-        for (i = 0; i < N_EXPR; i++) {
-            if (!fork()) {
-                begin = clock();
-                for (i = 0; i < n_threads; i++) {
-                    pthread_create(threads+i, NULL, server_read_thread, NULL);
-                }
-                for (i = 0; i < n_threads; i++) {
-                    pthread_join(threads[i], NULL);
-                }
-                end = clock();
-                total_t = (end - begin) / CLOCKS_PER_SEC;
-                *spent = total_t * USEC_SEC;
-                exit(0);
-            } else {
-                wait(NULL);
-                total_t += *spent;
-            }
-        }
-        printf("%f\nEnd test RDMA READ\n", total_t/N_EXPR);
-        free(threads);
-    } else {
-        while (1) {
+    if (is_server) {
+        /*while (1) {
             print_buf();
-        }
+        }*/
+        goto waitend;
     }
 
+    /* Start test RDMA: client side */
+    pthread_t *threads = (pthread_t *)malloc(sizeof(pthread_t)*n_threads);
+    int i;
+    double total_t, begin, end;
+    double *spent = (double *)
+        mmap(NULL, sizeof(double), PROT_READ|PROT_WRITE, MAP_ANON|MAP_SHARED, -1, 0);
+    printf("Start test RDMA WRITE\n");
+    total_t = 0;
+    for (i = 0; i < N_EXPR; i++) {
+        if (!fork()) {
+            begin = clock();
+            for (i = 0; i < n_threads; i++) {
+                pthread_create(threads+i, NULL, server_write_thread, NULL);
+            }
+            for (i = 0; i < n_threads; i++) {
+                pthread_join(threads[i], NULL);
+            }
+            end = clock();
+            total_t = (end - begin) / CLOCKS_PER_SEC;
+            *spent = total_t * USEC_SEC;
+            exit(0);
+        } else {
+            wait(NULL);
+            total_t += *spent;
+        }
+    }
+    printf("%f\nEnd test RDMA WRITE\n", total_t/N_EXPR);
+    printf("Start test RDMA READ\n");
+    total_t = 0;
+    for (i = 0; i < N_EXPR; i++) {
+        if (!fork()) {
+            begin = clock();
+            for (i = 0; i < n_threads; i++) {
+                pthread_create(threads+i, NULL, server_read_thread, NULL);
+            }
+            for (i = 0; i < n_threads; i++) {
+                pthread_join(threads[i], NULL);
+            }
+            end = clock();
+            total_t = (end - begin) / CLOCKS_PER_SEC;
+            *spent = total_t * USEC_SEC;
+            exit(0);
+        } else {
+            wait(NULL);
+            total_t += *spent;
+        }
+    }
+    printf("%f\nEnd test RDMA READ\n", total_t/N_EXPR);
+    free(threads);
+
+waitend:
     if (signal(SIGINT, sigint_handler) == SIG_ERR)
         die("Unable to register signal", 1);
 
     pause();
 
     close_ib_connection();
+
+    return 1;
 }
