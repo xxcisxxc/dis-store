@@ -336,7 +336,7 @@ int connect_qp_server(char *sock_port)
     if (ret != 0) 
         die("Failed to get qp_info from client", 1);
     
-    /* send qp_info to client */
+    /* send qp_info to client */    
     ret = sock_set_qp_info(peer_sockfd, &local_qp_info);
     if (ret != 0) 
         die("Failed to send qp_info to client", 1);
@@ -345,7 +345,7 @@ int connect_qp_server(char *sock_port)
     ib_res.rkey  = remote_qp_info.rkey;
     ib_res.raddr = remote_qp_info.raddr;
 
-    /* change send QP state to RTS */
+    /* change send QP state to RTS */    	
     ret = modify_qp_to_rts(ib_res.qp, remote_qp_info.qp_num, 
 			    remote_qp_info.lid);
     if (ret != 0) 
@@ -385,12 +385,12 @@ int connect_qp_client(char *server_name, char *sock_port)
    
     /* send qp_info to server */
     ret = sock_set_qp_info(peer_sockfd, &local_qp_info);
-    if (ret != 0) 
+    if (ret != 0)
         die("Failed to send qp_info to server", 1);
 
     /* get qp_info from server */
     ret = sock_get_qp_info(peer_sockfd, &remote_qp_info);
-    if (ret != 0) 
+    if (ret != 0)
         die("Failed to get qp_info from server", 1);
     
     /* store rkey and raddr info */
@@ -470,7 +470,7 @@ int setup_ib(int fd, size_t buf_size, int is_server, char *server_name, char *so
         ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     } else {
 #ifndef USE_PMEM
-        ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+        ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
 #else
         ib_res.ib_buf = pmem_map_file(USE_PMEM, buf_size, PMEM_FILE_CREATE, 0666, NULL, NULL);
 #endif
@@ -547,7 +547,7 @@ int post_write_signaled()
         .sg_list    = &list,
 	    .num_sge    = 1,
         .opcode     = IBV_WR_RDMA_WRITE,
-        //.send_flags = IBV_SEND_SIGNALED,
+        .send_flags = IBV_SEND_SIGNALED,
 	    .wr.rdma.remote_addr = raddr,
         .wr.rdma.rkey        = rkey,
     };
@@ -579,7 +579,7 @@ int post_read_signaled()
         .sg_list    = &list,
 	    .num_sge    = 1,
         .opcode     = IBV_WR_RDMA_READ,
-        //.send_flags = IBV_SEND_SIGNALED,
+        .send_flags = IBV_SEND_SIGNALED,
 	    .wr.rdma.remote_addr = raddr,
         .wr.rdma.rkey        = rkey,
     };
