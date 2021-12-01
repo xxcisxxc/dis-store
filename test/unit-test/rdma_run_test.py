@@ -29,7 +29,7 @@ if which == 's':
             print("bytes: {} threads, {} bytes".format(nT, nB))
             sys.stdout.flush()
 
-            clientsocket.send("OK")
+            clientsocket.send("OK".encode('ascii'))
             os.system("./rdma s {}".format(port))
             port += 1
 
