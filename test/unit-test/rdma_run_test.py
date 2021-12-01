@@ -38,7 +38,7 @@ if which == 's':
             sys.stdout.flush()
 
             clientsocket.recv(64)
-            kill_all(pid) if pid != -1 else pass
+            kill_all(pid) if pid != -1 else None
 
             pid = os.fork()
             if pid == 0:
