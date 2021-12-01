@@ -587,13 +587,13 @@ int post_read_signaled()
     return ret;
 }
 
-int wait_poll()
+int wait_poll(enum ibv_wc_opcode opc)
 {
     struct ibv_wc wc;
     int result;
     do {
         result = ibv_poll_cq(ib_res.cq, 1, &wc);
-    } while (result == 0);
+    } while (result == 0 && wc.opcode != opc);
     if (result < 0 || wc.status != IBV_WC_SUCCESS) {
         printf("%d\n", result);
         die("Wait Failed", 1);
