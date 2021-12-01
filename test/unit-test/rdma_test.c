@@ -13,7 +13,7 @@ void *server_write_thread(void *args)
 {
     if (post_write_signaled() != 0)
         die("Not success write", 1);
-    //wait_poll();
+    wait_poll();
     return NULL;
 }
 
@@ -21,7 +21,7 @@ void *server_read_thread(void *args)
 {
     if (post_read_signaled() != 0)
         die("Not success read", 1);
-    //wait_poll();
+    wait_poll();
     return NULL;
 }
 
@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
         listen(sockfd, 5);
         peer_sockfd = accept(sockfd, (struct sockaddr *)&peer_addr,
 			        &peer_addr_len);
+        print_buf();
         if (peer_sockfd <= 0)
             die("Failed to accept peer_sockfd", 1);
         int n = sock_read(peer_sockfd, sock_buf, sizeof(MSG));
@@ -92,6 +93,8 @@ int main(int argc, char *argv[])
     }
 
     /* Start test RDMA: client side */
+    print_buf();
+    usleep(1000);
     int peer_sockfd = sock_create_connect(server_name, sock_port);
 
     pthread_t *threads = (pthread_t *)malloc(sizeof(pthread_t)*n_threads);

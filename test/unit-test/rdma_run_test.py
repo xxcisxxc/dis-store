@@ -44,7 +44,7 @@ if which == 'c':
             sys.stdout.flush()
 
             clientsocket.recv(64)
-            time.sleep(1)
+            time.sleep(0.1)
             os.system("./rdma c {} {}".format(port, server))
             port += 1
 
