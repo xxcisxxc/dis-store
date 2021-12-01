@@ -7,6 +7,8 @@
 #define N_EXPR 100
 #define USEC_SEC 1000
 
+#define MSG "DONE"
+
 void *server_write_thread(void *args)
 {
     post_write_signaled();
@@ -62,13 +64,32 @@ int main(int argc, char *argv[])
     close(fd_read);
 
     if (is_server) {
-        /*while (1) {
-            print_buf();
-        }*/
+        /* Build connection */
+        int	sockfd = 0;
+        int	peer_sockfd = 0;
+        char sock_buf[64] = {'\0'};
+        struct sockaddr_in peer_addr;
+        socklen_t peer_addr_len = sizeof(struct sockaddr_in);
+
+        sockfd = sock_create_bind(sock_port);
+        if (sockfd <= 0) 
+            die("Failed to create server socket", 1);
+        listen(sockfd, 5);
+        peer_sockfd = accept(sockfd, (struct sockaddr *)&peer_addr,
+			        &peer_addr_len);
+        if (peer_sockfd <= 0)
+            die("Failed to accept peer_sockfd", 1);
+        int n = sock_read(peer_sockfd, sock_buf, sizeof(MSG));
+        if (n != sizeof(MSG))
+            die("Failed to receive DONE from client", 1);
+        close(peer_sockfd);
+        close(sockfd);
         goto waitend;
     }
 
     /* Start test RDMA: client side */
+    int peer_sockfd = sock_create_connect(server_name, sock_port);
+
     pthread_t *threads = (pthread_t *)malloc(sizeof(pthread_t)*n_threads);
     int i;
     double total_t, begin, end;
@@ -118,13 +139,14 @@ int main(int argc, char *argv[])
     printf("%f\nEnd test RDMA READ\n", total_t/N_EXPR);
     free(threads);
 
+    char sock_buf[64] = MSG;
+    int n = sock_write(peer_sockfd, sock_buf, sizeof(MSG));
+    if (n != sizeof(MSG))
+        die("Failed to send DONE from server", 1);
+
 waitend:
-    if (signal(SIGINT, sigint_handler) == SIG_ERR)
-        die("Unable to register signal", 1);
-
-    pause();
-
     close_ib_connection();
+    printf("disconnect\n");
 
     return 1;
 }

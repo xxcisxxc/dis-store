@@ -28,6 +28,7 @@ if which == 's':
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     serversocket.bind(('', 7777))
     serversocket.listen(1)
+    clientsocket, addr = serversocket.accept()
 
     pid = -1
     for nB in nBytes:
@@ -36,7 +37,7 @@ if which == 's':
             print("bytes: {} threads, {} bytes".format(nT, nB))
             sys.stdout.flush()
 
-            clientsocket, addr = serversocket.accept()
+            clientsocket.recv(64)
             kill_all(pid) if pid != -1 else pass
 
             pid = os.fork()
@@ -51,6 +52,7 @@ if which == 's':
 
 if which == 'c':
     clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientsocket.connect((server, 7777))
 
     for nB in nBytes:
         os.system("./generate {}".format(nB))
@@ -58,7 +60,7 @@ if which == 'c':
             print("bytes: {} threads, {} bytes".format(nT, nB))
             sys.stdout.flush()
 
-            clientsocket.connect((server, 7777))
+            clientsocket.send("Prepare")
             clientsocket.recv(64)
             os.system("./rdma c {} {}".format(port, server))
             port += 1

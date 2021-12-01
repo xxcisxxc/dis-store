@@ -362,7 +362,6 @@ int connect_qp_server(char *sock_port)
 	
     close(peer_sockfd);
     close(sockfd);
-    
     return 0;
 }
 
