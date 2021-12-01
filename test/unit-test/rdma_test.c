@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
     int n = sock_write(peer_sockfd, sock_buf, sizeof(MSG));
     if (n != sizeof(MSG))
         die("Failed to send DONE from server", 1);
+    close(peer_sockfd);
 
 waitend:
     close_ib_connection();
