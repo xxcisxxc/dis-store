@@ -15,7 +15,7 @@
 #define DIRRAMDISK "/dev/shm"
 #define DIRPM "/mnt/pmem"
 
-#define N_EXPR 100
+#define N_EXPR 1
 
 #define USEC_SEC 1000
 
@@ -34,15 +34,18 @@ static void *addr_read;
 
 void *write_thread_d(void *arg)
 {
-    if (write(*(int *)arg, addr_write, size_file) != size_file)
+    int fd = *(int *)arg;
+    if (write(fd, addr_write, size_file) != size_file)
         die("Not enough write!", 1);
-    fsync(*(int *)arg);
+    fsync(fd);
+    close(fd);
     return NULL;
 }
 
 void *write_thread_r(void *arg)
 {
     memcpy(arg, addr_write, size_file);
+    free(arg);
     return NULL;
 }
 
@@ -50,19 +53,30 @@ void *write_thread_p(void *arg)
 {
     pmem_memcpy_persist(arg, addr_write, size_file);
     pmem_persist(arg, size_file);
+    pmem_unmap(arg, size_file);
     return NULL;
 }
 
 void *read_thread_d(void *arg)
 {
+    int fd = *(int *)arg;
     if (read(*(int *)arg, addr_read, size_file) != size_file)
         die("Not enough Read!", 1);
+    close(fd);
     return NULL;
 }
 
-void *read_thread_m(void *arg)
+void *read_thread_r(void *arg)
 {
     memcpy(addr_read, arg, size_file);
+    free(arg);
+    return NULL;
+}
+
+void *read_thread_p(void *arg)
+{
+    memcpy(addr_read, arg, size_file);
+    pmem_unmap(arg, size_file);
     return NULL;
 }
 
@@ -130,11 +144,6 @@ int main(int argc, char *argv[])
             end = clock();
             total_t = (end - begin) / CLOCKS_PER_SEC;
             *spent = total_t * USEC_SEC;
-            for (i = 0; i < n_threads; i++) {
-                char name_buf[100];
-                sprintf(name_buf, "%s/disk%d_%d.test", DIRDISK, k, i);
-                close(fd_writes[i]);
-            }
             free(fd_writes);
             exit(0);
         } else {
@@ -168,7 +177,6 @@ int main(int argc, char *argv[])
             for (i = 0; i < n_threads; i++) {
                 char name_buf[100];
                 sprintf(name_buf, "%s/disk%d_%d.test", DIRDISK, k, i);
-                close(fd_reads[i]);
                 remove(name_buf);
             }
             free(fd_reads);
@@ -206,11 +214,6 @@ int main(int argc, char *argv[])
             end = clock();
             total_t = (end - begin) / CLOCKS_PER_SEC;
             *spent = total_t * USEC_SEC;
-            for (i = 0; i < n_threads; i++) {
-                char name_buf[100];
-                sprintf(name_buf, "%s/ramd%d_%d.test", DIRRAMDISK, k, i);
-                close(fd_writes[i]);
-            }
             free(fd_writes);
             exit(0);
         } else {
@@ -244,7 +247,6 @@ int main(int argc, char *argv[])
             for (i = 0; i < n_threads; i++) {
                 char name_buf[100];
                 sprintf(name_buf, "%s/ramd%d_%d.test", DIRRAMDISK, k, i);
-                close(fd_reads[i]);
                 remove(name_buf);
             }
             free(fd_reads);
@@ -263,12 +265,15 @@ int main(int argc, char *argv[])
      ****************/
     printf("Start test DRAM WRITE\n");
     total_t = 0;
-    void *buffers = malloc(size_file);
     for (i = 0; i < N_EXPR; i++) {
         if (!fork()) {
+            void **buffers = malloc(n_threads);
+            for (i = 0; i < n_threads; i++) {
+                buffers[i] = malloc(size_file);
+            }
             begin = clock();
             for (i = 0; i < n_threads; i++) {
-                pthread_create(threads+i, NULL, write_thread_r, buffers);
+                pthread_create(threads+i, NULL, write_thread_r, buffers[i]);
             }
             for (i = 0; i < n_threads; i++) {
                 pthread_join(threads[i], NULL);
@@ -288,9 +293,14 @@ int main(int argc, char *argv[])
     total_t = 0;
     for (i = 0; i < N_EXPR; i++) {
         if (!fork()) {
+            void **buffers = malloc(n_threads);
+            for (i = 0; i < n_threads; i++) {
+                buffers[i] = malloc(size_file);
+                memcpy(buffers[i], addr_write, size_file);
+            }
             begin = clock();
             for (i = 0; i < n_threads; i++) {
-                pthread_create(threads+i, NULL, read_thread_m, buffers);
+                pthread_create(threads+i, NULL, read_thread_r, buffers[i]);
             }
             for (i = 0; i < n_threads; i++) {
                 pthread_join(threads[i], NULL);
@@ -304,7 +314,6 @@ int main(int argc, char *argv[])
             total_t += *spent;
         }
     }
-    free(buffers);
     printf("%f\nEnd test DRAM READ\n\n", total_t/N_EXPR);
 
     /****************
@@ -334,7 +343,14 @@ int main(int argc, char *argv[])
             }
             begin = clock();
             for (i = 0; i < n_threads; i++) {
+                /*char name_buf[100];
+                sprintf(name_buf, "%s/pmem%d_%d.test", DIRPM, k, i);
+                size_t mapped_size;
+                int is_pmem;
+                pmemaddr_writes[i] = pmem_map_file(name_buf, size_file, 
+                    PMEM_FILE_CREATE, 0666, &mapped_size, &is_pmem);*/
                 pthread_create(threads+i, NULL, write_thread_p, pmemaddr_writes[i]);
+                //pthread_create(threads+i, NULL, write_thread_p, paddrp);
             }
             for (i = 0; i < n_threads; i++) {
                 pthread_join(threads[i], NULL);
@@ -342,12 +358,7 @@ int main(int argc, char *argv[])
             end = clock();
             total_t = (end - begin) / CLOCKS_PER_SEC;
             *spent = total_t * USEC_SEC;
-            for (i = 0; i < n_threads; i++) {
-                char name_buf[100];
-                sprintf(name_buf, "%s/pmem%d_%d.test", DIRPM, k, i);
-                pmem_unmap(pmemaddr_writes[i], size_file);
-            }
-            free(pmemaddr_writes);
+            //free(pmemaddr_writes);
             exit(0);
         } else {
             wait(NULL);
@@ -378,7 +389,7 @@ int main(int argc, char *argv[])
             }
             begin = clock();
             for (i = 0; i < n_threads; i++) {
-                pthread_create(threads+i, NULL, read_thread_m, pmemaddr_reads[i]);
+                pthread_create(threads+i, NULL, read_thread_p, pmemaddr_reads[i]);
             }
             for (i = 0; i < n_threads; i++) {
                 pthread_join(threads[i], NULL);
@@ -389,7 +400,6 @@ int main(int argc, char *argv[])
             for (i = 0; i < n_threads; i++) {
                 char name_buf[100];
                 sprintf(name_buf, "%s/pmem%d_%d.test", DIRPM, k, i);
-                pmem_unmap(pmemaddr_reads[i], size_file);
                 remove(name_buf);
             }
             free(pmemaddr_reads);
