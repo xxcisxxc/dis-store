@@ -23,10 +23,10 @@ dir2 = /mnt/pmem
 dir3 = /dev/shm
 
 clean_test:
-	@sudo rm -rf *.test *.bench $(dir2)/*.test $(dir3)/*.test
+	@sudo rm -rf *.bench
 
 clean:
-	sudo rm -rf $(tg1) $(tg2) $(tg3) *.o *.out *.test *.bench $(dir2)/*.test $(dir3)/*.test
+	sudo rm -rf $(tg1) $(tg2) $(tg3) *.o *.out *.bench *.zip
 
 zip:
-	zip test.zip $(tg1)_test.c $(tg2)_test.c $(tg3)_test.c setup_ib.h Makefile
+	zip test.zip *.c *.h *.py Makefile

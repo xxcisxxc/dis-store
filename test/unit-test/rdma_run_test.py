@@ -1,22 +1,66 @@
-import os, sys, signal
+import os, sys, signal, time
+from multiprocessing import Process, Value
+import socket
+import argparse
+import psutil
+
+parser = argparse.ArgumentParser(description='Choose server or client')
+parser.add_argument('which', help='server or client: [s/c]')
+args = parser.parse_args()
+which = args.which.strip()
+
+def kill_all(pid):
+    parent = psutil.Process(pid)
+    children = parent.children(recursive=True)
+    children.append(parent)
+    for p in children:
+        p.send_signal(signal.SIGINT)
+
+server = "192.168.0.11"
+port = 8000
+
+nBytes = ['128', '256', '512', '1K', '2K', '4K', '8K', '16K', '32K']
+nThreads = ['1', '2', '4', '8', '16', '32', '64', '128', '256']
 
 os.system("make")
 
-nBytes = ['4K', '8K', '16K', '32K', '64K', '128K', '256K', '512K', '1M', '2M', '4M', '8M', '16M', '32M','64M', '128M', '256M', '512M', '1G']
+if which == 's':
+    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    serversocket.bind(('', 7777))
+    serversocket.listen(1)
 
-def handler(signum, other):
-    print("Next Bytes: ", end='')
+    pid = -1
+    for nB in nBytes:
+        os.system("./generate {}".format(nB))
+        for nT in nThreads:
+            print("bytes: {} threads, {} bytes".format(nT, nB))
+            sys.stdout.flush()
 
-signal.signal(signal.SIGINT, handler)
+            clientsocket, addr = serversocket.accept()
+            kill_all(pid) if pid != -1 else pass
 
-port = 5000
+            pid = os.fork()
+            if pid == 0:
+                os.system("./rdma s {}".format(port))
+                quit()
+            else:
+                time.sleep(0.1)
+                port += 1
+                clientsocket.send("OK")
+                clientsocket.close()
 
-for nB in nBytes:
-    print("bytes: {}".format(nB))
-    sys.stdout.flush()
-    os.system("./generate {}".format(nB))
-    os.system("./rdma c {} 192.168.0.11 ".format(port))
-    os.system("make clean_test")
-    port += 1
+if which == 'c':
+    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    for nB in nBytes:
+        os.system("./generate {}".format(nB))
+        for nT in nThreads:
+            print("bytes: {} threads, {} bytes".format(nT, nB))
+            sys.stdout.flush()
+
+            clientsocket.connect((server, 7777))
+            clientsocket.recv(64)
+            os.system("./rdma c {} {}".format(port, server))
+            port += 1
 
 os.system("make clean")
