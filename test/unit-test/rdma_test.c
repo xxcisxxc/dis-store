@@ -11,15 +11,17 @@
 
 void *server_write_thread(void *args)
 {
-    post_write_signaled();
-    wait_poll();
+    if (post_write_signaled() != 0)
+        die("Not success write", 1);
+    //wait_poll();
     return NULL;
 }
 
 void *server_read_thread(void *args)
 {
-    post_read_signaled();
-    wait_poll();
+    if (post_read_signaled() != 0)
+        die("Not success read", 1);
+    //wait_poll();
     return NULL;
 }
 
