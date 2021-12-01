@@ -45,7 +45,7 @@ if which == 'c':
 
             clientsocket.recv(64)
             time.sleep(0.1)
-            os.system("./rdma c {} {}".format(port, server))
+            os.system("./rdma c {} {} {}".format(port, server, nT))
             port += 1
 
 os.system("make clean")
