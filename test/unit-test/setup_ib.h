@@ -593,11 +593,13 @@ int wait_poll(enum ibv_wc_opcode opc)
     int result;
     do {
         result = ibv_poll_cq(ib_res.cq, 1, &wc);
-    } while (result == 0 && wc.opcode != opc);
+    } while (result == 0);
     if (result < 0 || wc.status != IBV_WC_SUCCESS) {
         printf("%d\n", result);
         die("Wait Failed", 1);
     }
+    if (wc.opcode != opc)
+        die("Not right opcode", 0);
     return result;
 }
 

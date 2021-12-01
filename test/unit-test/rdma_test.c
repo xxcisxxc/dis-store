@@ -68,7 +68,6 @@ int main(int argc, char *argv[])
         char sock_buf[5] = {'\0'};
         struct sockaddr_in peer_addr;
         socklen_t peer_addr_len = sizeof(struct sockaddr_in);
-        int i, n;
 
         sockfd = sock_create_bind(sock_port);
         if (sockfd <= 0) 
@@ -80,7 +79,7 @@ int main(int argc, char *argv[])
         if (peer_sockfd <= 0)
             die("Failed to accept peer_sockfd", 1);
 
-        n = sock_read(peer_sockfd, sock_buf, sizeof(MSG));
+        int n = sock_read(peer_sockfd, sock_buf, sizeof(MSG));
         if (n != sizeof(MSG))
             die("Failed to receive DONE from client", 1);
 
@@ -94,18 +93,18 @@ int main(int argc, char *argv[])
     int peer_sockfd = sock_create_connect(server_name, sock_port);
 
     pthread_t *threads = (pthread_t *)malloc(sizeof(pthread_t)*n_threads);
-    int i;
+    int i, j;
     double total_t, begin, end, spent;
 
     printf("Start test RDMA WRITE\n");
     total_t = 0;
     for (i = 0; i < N_EXPR; i++) {
         begin = clock();
-        for (i = 0; i < n_threads; i++) {
-            pthread_create(threads+i, NULL, server_write_thread, NULL);
+        for (j = 0; j < n_threads; j++) {
+            pthread_create(threads+j, NULL, server_write_thread, NULL);
         }
-        for (i = 0; i < n_threads; i++) {
-            pthread_join(threads[i], NULL);
+        for (j = 0; j < n_threads; j++) {
+            pthread_join(threads[j], NULL);
         }
         end = clock();
         spent = (end - begin) / CLOCKS_PER_SEC;
@@ -117,11 +116,11 @@ int main(int argc, char *argv[])
     total_t = 0;
     for (i = 0; i < N_EXPR; i++) {
         begin = clock();
-        for (i = 0; i < n_threads; i++) {
-            pthread_create(threads+i, NULL, server_read_thread, NULL);
+        for (j = 0; j < n_threads; j++) {
+            pthread_create(threads+j, NULL, server_read_thread, NULL);
         }
-        for (i = 0; i < n_threads; i++) {
-            pthread_join(threads[i], NULL);
+        for (j = 0; j < n_threads; j++) {
+            pthread_join(threads[j], NULL);
         }
         end = clock();
         spent = (end - begin) / CLOCKS_PER_SEC;
