@@ -112,6 +112,7 @@ int main(int argc, char *argv[])
     }
     printf("%f\nEnd test RDMA WRITE\n", total_t/N_EXPR);
 
+    memset(ib_res.ib_buf, 0, ib_res.ib_buf_size);
     printf("Start test RDMA READ\n");
     total_t = 0;
     for (i = 0; i < N_EXPR; i++) {
