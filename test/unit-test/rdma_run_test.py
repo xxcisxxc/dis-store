@@ -2,19 +2,11 @@ import os, sys, signal, time
 from multiprocessing import Process, Value
 import socket
 import argparse
-import psutil
 
 parser = argparse.ArgumentParser(description='Choose server or client')
 parser.add_argument('which', help='server or client: [s/c]')
 args = parser.parse_args()
 which = args.which.strip()
-
-def kill_all(pid):
-    parent = psutil.Process(pid)
-    children = parent.children(recursive=True)
-    children.append(parent)
-    for p in children:
-        p.send_signal(signal.SIGINT)
 
 server = "192.168.0.11"
 port = 8000
@@ -37,18 +29,9 @@ if which == 's':
             print("bytes: {} threads, {} bytes".format(nT, nB))
             sys.stdout.flush()
 
-            clientsocket.recv(64)
-            kill_all(pid) if pid != -1 else None
-
-            pid = os.fork()
-            if pid == 0:
-                os.system("./rdma s {}".format(port))
-                quit()
-            else:
-                time.sleep(0.1)
-                port += 1
-                clientsocket.send("OK")
-                clientsocket.close()
+            clientsocket.send("OK")
+            os.system("./rdma s {}".format(port))
+            port += 1
 
 if which == 'c':
     clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -60,8 +43,8 @@ if which == 'c':
             print("bytes: {} threads, {} bytes".format(nT, nB))
             sys.stdout.flush()
 
-            clientsocket.send("Prepare")
             clientsocket.recv(64)
+            time.sleep(0.1)
             os.system("./rdma c {} {}".format(port, server))
             port += 1
 
