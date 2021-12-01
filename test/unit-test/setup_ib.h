@@ -546,7 +546,7 @@ int post_write_signaled()
         .sg_list    = &list,
 	    .num_sge    = 1,
         .opcode     = IBV_WR_RDMA_WRITE,
-        .send_flags = IBV_SEND_SIGNALED,
+        //.send_flags = IBV_SEND_SIGNALED,
 	    .wr.rdma.remote_addr = raddr,
         .wr.rdma.rkey        = rkey,
     };
@@ -578,7 +578,7 @@ int post_read_signaled()
         .sg_list    = &list,
 	    .num_sge    = 1,
         .opcode     = IBV_WR_RDMA_READ,
-        .send_flags = IBV_SEND_SIGNALED,
+        //.send_flags = IBV_SEND_SIGNALED,
 	    .wr.rdma.remote_addr = raddr,
         .wr.rdma.rkey        = rkey,
     };

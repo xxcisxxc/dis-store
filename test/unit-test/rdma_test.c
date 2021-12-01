@@ -12,14 +12,14 @@
 void *server_write_thread(void *args)
 {
     post_write_signaled();
-    wait_poll();
+    //wait_poll();
     return NULL;
 }
 
 void *server_read_thread(void *args)
 {
     post_read_signaled();
-    wait_poll();
+    //wait_poll();
     return NULL;
 }
 
