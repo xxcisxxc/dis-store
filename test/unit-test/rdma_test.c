@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     setup_ib(fd_read, size_read, is_server, server_name, sock_port);
     close(fd_read);
 
-    sock_port = "7778"
+    sock_port = "7778";
     if (is_server) {
         /* Build connection */
         int	sockfd = 0;
