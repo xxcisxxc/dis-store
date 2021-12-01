@@ -13,7 +13,7 @@ void *server_write_thread(void *args)
 {
     if (post_write_signaled() != 0)
         die("Not success write", 1);
-    wait_poll();
+    //wait_poll();
     return NULL;
 }
 
@@ -21,7 +21,7 @@ void *server_read_thread(void *args)
 {
     if (post_read_signaled() != 0)
         die("Not success read", 1);
-    wait_poll();
+    //wait_poll();
     return NULL;
 }
 
@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
             die("Failed to receive DONE from client", 1);
         close(peer_sockfd);
         close(sockfd);
+        print_buf();
         goto waitend;
     }
 

@@ -594,7 +594,6 @@ int wait_poll()
     do {
         result = ibv_poll_cq(ib_res.cq, 1, &wc);
     } while (0);
-    printf("%d\n", result);
     if (result < 0 || wc.status != IBV_WC_SUCCESS) {
         printf("%d\n", result);
         die("Wait Failed", 1);
