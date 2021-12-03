@@ -11,10 +11,6 @@ def changeMem(nB):
     with open(config, 'w') as cf:
         cf.write(lines)
 
-def handler(signum, other):
-    print("Next Bytes: ", end='')
-
-signal.signal(signal.SIGINT, handler)
 def kill_all(pid):
     parent = psutil.Process(pid)
     process = parent.children(recursive=True)
