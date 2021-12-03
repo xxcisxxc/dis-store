@@ -1,6 +1,6 @@
 import os, signal, psutil, time
 
-user = "Zhejian"
+user = "XXC"
 config = "test.config"
 run = "./clients/memaslap -s 127.0.0.1:11211 -t 10s"
 
