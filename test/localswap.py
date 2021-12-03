@@ -19,13 +19,13 @@ def kill_all(pid):
     for p in process:
         p.kill()
 
-print("Next Bytes: ", end='')
 for nB in nBytes:
     print("Next Bytes: {}".format(nB))
     changeMem(nB)
     pid = os.fork()
     if pid == 0:
         os.system("sudo lxc-execute -n {} -f {} -- memcached -u {}".format(name, config, user))
+        quit()
     else:
         time.sleep(0.1)
         os.system("{}".format(run))
