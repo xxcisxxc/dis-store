@@ -1,6 +1,7 @@
 import os, signal, psutil, time
 
 user = "XXC"
+name = "test"
 config = "test.config"
 run = "./clients/memaslap -s 127.0.0.1:11211 -t 10s"
 
@@ -28,3 +29,4 @@ for nB in nBytes:
     else:
         time.sleep(0.1)
         os.system("{}".format(run))
+        kill_all(pid)
