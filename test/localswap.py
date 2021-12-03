@@ -3,7 +3,7 @@ import os, signal, psutil, time
 user = "XXC"
 name = "test"
 config = "test.config"
-run = "./clients/memaslap -s 127.0.0.1:11211 -t 10s"
+run = "../../libmemcached-1.0.18/clients/memaslap -s 127.0.0.1:11211 -t 10s"
 
 nBytes = ['4M', '8M', '16M', '32M','64M', '128M', '256M', '512M', '1G', '2G', '4G']
 
@@ -24,7 +24,7 @@ for nB in nBytes:
     changeMem(nB)
     pid = os.fork()
     if pid == 0:
-        os.system("sudo lxc-execute -n {} -f {} -- memcached -u {}".format(name, config, user))
+        os.system("lxc-execute -n {} -f {} -- memcached -u {}".format(name, config, user))
         quit()
     else:
         time.sleep(0.1)
