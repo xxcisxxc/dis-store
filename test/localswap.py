@@ -1,10 +1,10 @@
-import os, signal
+import os, signal, psutil, time
 
 user = "Zhejian"
-name = "test"
-config = "{}.config".format(name)
+config = "test.config"
+run = "./clients/memaslap -s 127.0.0.1:11211 -t 10s"
 
-nBytes = ['1M', '2M', '4M', '8M', '16M', '32M','64M', '128M', '256M', '512M', '1G', '2G', '4G', '8G']
+nBytes = ['4M', '8M', '16M', '32M','64M', '128M', '256M', '512M', '1G', '2G', '4G']
 
 def changeMem(nB):
     lines = "lxc.network.type = none\nlxc.cgroup.memory.limit_in_bytes = {}\n".format(nB)
@@ -15,8 +15,20 @@ def handler(signum, other):
     print("Next Bytes: ", end='')
 
 signal.signal(signal.SIGINT, handler)
+def kill_all(pid):
+    parent = psutil.Process(pid)
+    process = parent.children(recursive=True)
+    process.append(parent)
+    for p in process:
+        p.kill()
 
 print("Next Bytes: ", end='')
 for nB in nBytes:
-    os.system("sudo lxc-execute -n {} -f {} -- memcached -u {}".format(name, config, user))
+    print("Next Bytes: {}".format(nB))
     changeMem(nB)
+    pid = os.fork()
+    if pid == 0:
+        os.system("sudo lxc-execute -n {} -f {} -- memcached -u {}".format(name, config, user))
+    else:
+        time.sleep(0.1)
+        os.system("{}".format(run))
