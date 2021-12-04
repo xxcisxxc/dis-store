@@ -20,7 +20,7 @@ def kill_all(pid):
         p.kill()
 
 for nB in nBytes:
-    print("Next Bytes: {}".format(nB))
+    print("\n\nNext Bytes: {}".format(nB))
     changeMem(nB)
     pid = os.fork()
     if pid == 0:
