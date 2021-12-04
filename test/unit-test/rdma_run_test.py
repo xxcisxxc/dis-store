@@ -22,7 +22,7 @@ if which == 's':
     serversocket.listen(1)
     clientsocket, addr = serversocket.accept()
 
-    pid = -1
+    print("\n===============Test RDMA DRAM=============\n")
     for nB in nBytes:
         os.system("./generate {}".format(nB))
         for nT in nThreads:
@@ -30,22 +30,46 @@ if which == 's':
             sys.stdout.flush()
 
             clientsocket.send("OK".encode('ascii'))
-            os.system("./rdma s {}".format(port))
+            os.system("./rdma_dram s {}".format(port))
+            port += 1
+
+    print("\n===============Test RDMA PMEM=============\n")
+    for nB in nBytes:
+        os.system("./generate {}".format(nB))
+        for nT in nThreads:
+            print("bytes: {} threads, {} bytes\n\n".format(nT, nB))
+            sys.stdout.flush()
+
+            clientsocket.send("OK".encode('ascii'))
+            os.system("./rdma_pmem s {}".format(port))
             port += 1
 
 if which == 'c':
     clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     clientsocket.connect((server, 7777))
 
+    print("\n\n\n===============Test RDMA DRAM=============\n\n\n")
     for nB in nBytes:
         os.system("./generate {}".format(nB))
         for nT in nThreads:
-            print("bytes: {} threads, {} bytes".format(nT, nB))
+            print("bytes: {} threads, {} bytes\n\n".format(nT, nB))
             sys.stdout.flush()
 
             clientsocket.recv(64)
             time.sleep(0.1)
-            os.system("./rdma c {} {} {}".format(port, server, nT))
+            os.system("./rdma_dram c {} {} {}".format(port, server, nT))
+            port += 1
+    
+    print("\n\n\n===============Test RDMA PMEM=============\n\n\n")
+    for nB in nBytes:
+        os.system("./generate {}".format(nB))
+        for nT in nThreads:
+            print("bytes: {} threads, {} bytes\n\n".format(nT, nB))
+            sys.stdout.flush()
+
+            clientsocket.recv(64)
+            time.sleep(0.1)
+            os.system("./rdma_pmem c {} {} {}".format(port, server, nT))
             port += 1
 
 os.system("make clean")

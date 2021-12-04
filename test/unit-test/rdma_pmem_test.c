@@ -1,10 +1,10 @@
-//#define USE_PMEM "/mnt/pmem/test"
+#define USE_PMEM "/mnt/pmem/test"
 
 #include <time.h> 
 #include <signal.h>
 #include "setup_ib.h"
 
-#define N_EXPR 10
+#define N_EXPR 100
 #define USEC_SEC 1000
 
 #define MSG "DONE"
