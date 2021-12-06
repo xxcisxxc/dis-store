@@ -799,7 +799,8 @@ static int client_recv(struct kernel_cb *cb, struct ib_wc *wc)
 			client_recv_stop(cb);
 			break;
 		default:
-			pr_info(PFX "client receives unknown msg\n");
+			/* DEBUG */
+			pr_info(PFX "client receives unknown msg: %d\n", cb->recv_buf.type);
 			return -1; 	
 	}
 	return 0;
