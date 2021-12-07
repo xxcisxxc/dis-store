@@ -302,6 +302,7 @@ static int IS_send_activity(struct kernel_cb *cb)
 	int chunk_sess_index = -1;
 	struct IS_session *IS_sess = cb->IS_sess;
 	cb->send_buf.type = ACTIVITY;
+	pr_info("DEBUG: %s\n", __func__);
 
 	for (i=0; i<MAX_MR_SIZE_GB; i++) {
 		chunk_sess_index = cb->remote_chunk.chunk_map[i];
@@ -327,7 +328,7 @@ static int IS_send_query(struct kernel_cb *cb)
 
 	cb->send_buf.type = QUERY;
 	/* DEBUG: */
-	pr_info("Send QUERY Message\n");
+	pr_info("DEBUG: %s\n", __func__);
 	ret = ib_post_send(cb->qp, &cb->sq_wr, &bad_wr);
 	if (ret) {
 		printk(KERN_ERR PFX "QUERY MSG send error %d\n", ret);
@@ -341,6 +342,7 @@ static int IS_send_bind_single(struct kernel_cb *cb, int select_chunk)
 	struct ib_send_wr * bad_wr;
 	cb->send_buf.type = BIND_SINGLE;
 	cb->send_buf.size_gb = select_chunk; 
+	pr_info("DEBUG: %s\n", __func__);
 
 	ret = ib_post_send(cb->qp, &cb->sq_wr, &bad_wr);
 	if (ret) {
@@ -356,6 +358,7 @@ static int IS_send_done(struct kernel_cb *cb, int num)
 	struct ib_send_wr * bad_wr;
 	cb->send_buf.type = DONE;
 	cb->send_buf.size_gb = num;
+	pr_info("DEBUG: %s\n", __func__);
 	ret = ib_post_send(cb->qp, &cb->sq_wr, &bad_wr);
 	if (ret) {
 		printk(KERN_ERR PFX "DONE MSG send error %d\n", ret);
@@ -370,6 +373,7 @@ int IS_transfer_chunk(struct IS_file *xdev, struct kernel_cb *cb, int cb_index, 
 {
 	struct IS_connection *IS_conn = q->IS_conn;
 	int cpu, retval = 0;
+	pr_info("DEBUG: %s\n", __func__);
 
 	cpu = get_cpu();
 	
@@ -418,6 +422,7 @@ struct IS_session *IS_session_find_by_portal(struct list_head *s_data_list,
 {
 	struct IS_session *pos;
 	struct IS_session *ret = NULL;
+	pr_info("DEBUG: %s\n", __func__);
 
 	mutex_lock(&g_lock);
 	list_for_each_entry(pos, s_data_list, list) {
@@ -443,6 +448,7 @@ static int IS_disconnect_handler(struct kernel_cb *cb)
 	int err = 0;
 	int evict_list[STACKBD_SIZE_G];
 	struct request *req;
+	pr_info("DEBUG: %s\n", __func__);
 
 	pr_debug("%s\n", __func__);
 
@@ -624,6 +630,7 @@ static int IS_chunk_wait_in_flight_requests(struct kernel_cb *cb)
 	struct IS_session *IS_sess = cb->IS_sess;
 	int *chunk_map = cb->remote_chunk.chunk_map;
 	int err = 0;
+	pr_info("DEBUG: %s\n", __func__);
 
 	msleep(1);
 	while (1) {
@@ -670,6 +677,7 @@ static int evict_handler(void *data)
 	int *cb_chunk_map = cb->remote_chunk.chunk_map;
 	struct IS_session *IS_sess = cb->IS_sess;
 	int evict_list[STACKBD_SIZE_G]; //session chunk index
+	pr_info("DEBUG: %s\n", __func__);
 
 	while (cb->state != ERROR) {
 		pr_err("%s, waiting for STOP msg\n", __func__);
@@ -777,6 +785,7 @@ static int client_recv(struct kernel_cb *cb, struct ib_wc *wc)
 		printk(KERN_ERR PFX "cb is not connected\n");	
 		return -1;
 	}
+	pr_info("DEBUG: %s\n", __func__);
 	switch(cb->recv_buf.type){
 		case FREE_SIZE:
 			cb->remote_chunk.target_size_g = cb->recv_buf.size_gb;
@@ -819,6 +828,7 @@ static int client_read_done(struct kernel_cb * cb, struct ib_wc *wc)
 {
 	struct rdma_ctx *ctx;
 	struct request *req;
+	pr_info("DEBUG: %s\n", __func__);
 
 	ctx = (struct rdma_ctx *)ptr_from_uint64(wc->wr_id);
 	atomic_set(&ctx->in_flight, CTX_IDLE);
@@ -845,6 +855,7 @@ static int client_write_done(struct kernel_cb * cb, struct ib_wc *wc)
 {
 	struct rdma_ctx *ctx=NULL;
 	struct request *req=NULL;
+	pr_info("DEBUG: %s\n", __func__);
 
 	ctx = (struct rdma_ctx *)ptr_from_uint64(wc->wr_id);	
 	if (ctx->chunk_ptr == NULL){
@@ -952,6 +963,7 @@ error:
 
 static void IS_setup_wr(struct kernel_cb *cb)
 {
+	pr_info("DEBUG: %s\n", __func__);
 	cb->recv_sgl.addr = cb->recv_dma_addr;
 	cb->recv_sgl.length = sizeof cb->recv_buf;
 	if (cb->local_dma_lkey)
@@ -1071,6 +1083,7 @@ static int IS_create_qp(struct kernel_cb *cb)
 {
 	struct ib_qp_init_attr init_attr;
 	int ret;
+	pr_info("DEBUG: %s\n", __func__);
 
 	memset(&init_attr, 0, sizeof(init_attr));
 	init_attr.cap.max_send_wr = cb->txdepth; /*FIXME: You may need to tune the maximum work request */
@@ -1101,6 +1114,7 @@ static void IS_free_qp(struct kernel_cb *cb)
 static int IS_setup_qp(struct kernel_cb *cb, struct rdma_cm_id *cm_id)
 {
 	int ret;
+	pr_info("DEBUG: %s\n", __func__);
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0)
 	struct ib_cq_init_attr init_attr;
 #endif
@@ -1176,6 +1190,7 @@ static int IS_connect_client(struct kernel_cb *cb)
 {
 	struct rdma_conn_param conn_param;
 	int ret;
+	pr_info("DEBUG: %s\n", __func__);
 
 	memset(&conn_param, 0, sizeof conn_param);
 	conn_param.responder_resources = 1;
@@ -1202,6 +1217,7 @@ static int IS_bind_client(struct kernel_cb *cb)
 {
 	struct sockaddr_storage sin;
 	int ret;
+	pr_info("DEBUG: %s\n", __func__);
 
 	fill_sockaddr(&sin, cb);
 
@@ -1306,6 +1322,7 @@ int IS_create_device(struct IS_session *IS_session,
 					   const char *xdev_name, struct IS_file *IS_file)
 {
 	int retval;
+	pr_info("DEBUG: %s\n", __func__);
 	// char name[20];
 	sscanf(xdev_name, "%s", IS_file->file_name);
 	IS_file->index = IS_indexes++;
@@ -1376,6 +1393,7 @@ static void IS_destroy_conn(struct IS_connection *IS_conn)
 static int IS_ctx_init(struct IS_connection *IS_conn, struct kernel_cb *cb, int cb_index)
 {
 	struct rdma_ctx *ctx;	
+	pr_info("DEBUG: %s\n", __func__);
 	int i=0;
 	int ret = 0;
 	struct ctx_pool_list *tmp_pool = IS_conn->ctx_pools[cb_index];
@@ -1465,6 +1483,7 @@ static int rdma_connect_down(struct kernel_cb *cb)
 {
 	struct ib_recv_wr *bad_wr;
 	int ret;
+	pr_info("DEBUG: %s\n", __func__);
 
 	ret = ib_post_recv(cb->qp, &cb->rq_wr, &bad_wr); 
 	if (ret) {
@@ -1488,6 +1507,7 @@ err:
 static int rdma_connect_upper(struct kernel_cb *cb)
 {
 	int ret;
+	pr_info("DEBUG: %s\n", __func__);
 	ret = IS_bind_client(cb);
 	if (ret)
 		return ret;
@@ -1539,6 +1559,7 @@ static void portal_parser(struct IS_session *IS_session)
 static int kernel_cb_init(struct kernel_cb *cb, struct IS_session *IS_session)
 {
 	int ret = 0;
+	pr_info("DEBUG: %s\n", __func__);
 	int i;
 	cb->IS_sess = IS_session;
 	cb->addr_type = AF_INET;
@@ -1585,6 +1606,7 @@ void IS_ctx_dma_setup(struct kernel_cb *cb, struct IS_session *IS_session, int c
 {
 	struct IS_connection *IS_conn;
 	int i;
+	pr_info("DEBUG: %s\n", __func__);
 
 	for (i=0; i<submit_queues; i++){
 		IS_conn = IS_session->IS_conns[i];
@@ -1607,6 +1629,7 @@ int IS_single_chunk_map(struct IS_session *IS_session, int select_chunk)
 	int avail_cb;
 	unsigned int random_cb_selection[NUM_CB];
 	unsigned int random_num;
+	pr_info("DEBUG: %s\n", __func__);
 
 	for (j = 0; j < SERVER_SELECT_NUM; j++){
 		selection[j] = NUM_CB; //no server 

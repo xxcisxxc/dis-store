@@ -83,6 +83,7 @@ void build_connection(struct rdma_cm_id *id)
   struct connection *conn;
   struct ibv_qp_init_attr qp_attr;
 
+  printf("DEBUG: %s, build_context\n", __func__);
   build_context(id->verbs);
   build_qp_attr(&qp_attr);
 
@@ -120,6 +121,7 @@ void build_connection(struct rdma_cm_id *id)
   }
   session.conn_num += 1;
 
+  printf("DEBUG: %s, register_memory\n", __func__);
   register_memory(conn);
   post_receives(conn);
 }
@@ -174,6 +176,7 @@ void destroy_connection(void *context)
   int index;
   rdma_destroy_qp(conn->id);
 
+  printf("DEBUG: %s, ibv_dereg_mr\n", __func__);
   ibv_dereg_mr(conn->send_mr);
   ibv_dereg_mr(conn->recv_mr);
 
@@ -430,9 +433,11 @@ void* free_mem(void *data)
     filtered_free_mem_g = (int)(CURR_FREE_MEM_WEIGHT * free_mem_g + last_free_mem_g * last_free_mem_weight); 
     last_free_mem_g = filtered_free_mem_g;
     if (filtered_free_mem_g < FREE_MEM_EVICT_THRESHOLD){
+      printf("DEBUG: %s, filtered_free_mem_g < FREE_MEM_EVICT_THRESHOLD\n", __func__);
       evict_hit_count += 1;
       expand_hit_count = 0;
       if (evict_hit_count >= MEM_EVICT_HIT_THRESHOLD){
+        printf("DEBUG: %s, evict_hit_count >= MEM_EVICT_HIT_THRESHOLD\n", __func__);
         evict_hit_count = 0;
         //evict  down_threshold - free_mem
         stop_size_g = FREE_MEM_EVICT_THRESHOLD - last_free_mem_g;
@@ -446,9 +451,11 @@ void* free_mem(void *data)
         last_free_mem_g += stop_size_g;
       }
     }else if (filtered_free_mem_g > FREE_MEM_EXPAND_THRESHOLD) {
+      printf("DEBUG: %s, filtered_free_mem_g > FREE_MEM_EXPAND_THRESHOLD\n", __func__);
       expand_hit_count += 1;
       evict_hit_count = 0;
       if (expand_hit_count >= MEM_EXPAND_HIT_THRESHOLD){
+        printf("DEBUG: %s, expand_hit_count >= MEM_EXPAND_HIT_THRESHOLD\n", __func__);
         expand_hit_count = 0;
         expand_size_g =  last_free_mem_g - FREE_MEM_EXPAND_THRESHOLD;
         if ((expand_size_g + session.rdma_remote.size_gb) > MAX_FREE_MEM_GB) {
@@ -480,6 +487,7 @@ void recv_done(struct connection *conn)
 {
   int evict_g = conn->recv_msg->size_gb;
   int i, j, index;
+  printf("DEBUG: %s, \n", __func__);
   
   j = 0;
   for (i = 0 ; i<MAX_MR_SIZE_GB; i++) {
@@ -519,6 +527,7 @@ void on_completion(struct ibv_wc *wc)
     die("on_completion: status is not IBV_WC_SUCCESS.");
 
   if (wc->opcode == IBV_WC_RECV){ //Recv
+    printf("DEBUG: %s, receive\n", __func__);
     switch (conn->recv_msg->type){
       case QUERY:
         printf("%s, QUERY \n", __func__);
@@ -558,6 +567,7 @@ void on_completion(struct ibv_wc *wc)
         die("unknow received message\n");
     }
   }else{ //Send
+      printf("DEBUG: %s, send\n", __func__);
       atomic_set(&conn->cq_qp_state, CQ_QP_IDLE);
   }
 }
@@ -575,6 +585,7 @@ void * poll_cq(void *ctx)
   struct ibv_cq *cq;
   struct ibv_wc wc;
 
+  printf("DEBUG: %s, \n", __func__);
   while (1) {
     TEST_NZ(ibv_get_cq_event(s_ctx->comp_channel, &cq, &ctx));
     ibv_ack_cq_events(cq, 1);
@@ -591,6 +602,7 @@ void post_receives(struct connection *conn)
 {
   struct ibv_recv_wr wr, *bad_wr = NULL;
   struct ibv_sge sge;
+  printf("DEBUG: %s, \n", __func__);
 
   wr.wr_id = (uintptr_t)conn;
   wr.next = NULL;
@@ -649,6 +661,7 @@ void send_single_mr(void *context, int client_chunk_index)
 {
   struct connection *conn = (struct connection *)context;
   int i = 0;
+  printf("DEBUG: %s, \n", __func__);
 
   conn->send_msg->size_gb = client_chunk_index;
   for (i=0; i<MAX_FREE_MEM_GB;i++){
@@ -676,6 +689,7 @@ void send_mr(void *context, int size)
   struct connection *conn = (struct connection *)context;
   int i = 0;
   int j = 0;
+  printf("DEBUG: %s, \n", __func__);
 
   conn->send_msg->size_gb = size;
   for (i=0; i<MAX_FREE_MEM_GB;i++){
