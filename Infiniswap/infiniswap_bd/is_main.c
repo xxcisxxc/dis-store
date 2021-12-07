@@ -326,6 +326,7 @@ static int IS_send_query(struct kernel_cb *cb)
 	struct ib_send_wr * bad_wr;
 
 	cb->send_buf.type = QUERY;
+	pr_info("Send QUERY Message\n");
 	ret = ib_post_send(cb->qp, &cb->sq_wr, &bad_wr);
 	if (ret) {
 		printk(KERN_ERR PFX "QUERY MSG send error %d\n", ret);
