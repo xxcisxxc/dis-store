@@ -811,10 +811,10 @@ static int client_recv(struct kernel_cb *cb, struct ib_wc *wc)
 			break;
 		default:
 			/* DEBUG: */
-			/*pr_info(PFX "client receives unknown msg: %d %d\n", cb->recv_buf.type, cb->recv_buf.size_gb);
-			return -1;*/
-			cb->remote_chunk.target_size_g = 2;
-			cb->state = FREE_MEM_RECV;
+			pr_info(PFX "client receives unknown msg: %d %d\n", cb->recv_buf.type, cb->recv_buf.size_gb);
+			return -1;
+			/*cb->remote_chunk.target_size_g = 2;
+			cb->state = FREE_MEM_RECV;*/
 	}
 	return 0;
 }
