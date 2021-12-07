@@ -724,7 +724,7 @@ void send_free_mem_size(void *context)
   conn->send_msg->size_gb = session.rdma_remote.size_gb - session.rdma_remote.mapped_size;
   printf("%s , %d\n", __func__, conn->send_msg->size_gb);
   /* DEBUG */
-  printf("I tried to send %d\n", conn->send_msg->type);
+  printf("I tried to send %d\n", sizeof(conn->send_msg));
   send_message(conn);
 }
 
