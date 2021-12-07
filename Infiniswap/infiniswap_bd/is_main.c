@@ -882,7 +882,7 @@ static void rdma_cq_event_handler(struct ib_cq * cq, void *ctx)
 
 	/* DEBUG: */
 	pr_info("Start Sleep\n");
-	ssleep(2)
+	ssleep(2);
 	while ((ret = ib_poll_cq(cb->cq, 1, &wc)) == 1) {
 		if (wc.status) {
 			if (wc.status == IB_WC_WR_FLUSH_ERR) {
