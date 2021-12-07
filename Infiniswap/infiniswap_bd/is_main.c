@@ -326,6 +326,7 @@ static int IS_send_query(struct kernel_cb *cb)
 	struct ib_send_wr * bad_wr;
 
 	cb->send_buf.type = QUERY;
+	/* DEBUG: */
 	pr_info("Send QUERY Message\n");
 	ret = ib_post_send(cb->qp, &cb->sq_wr, &bad_wr);
 	if (ret) {
@@ -800,7 +801,7 @@ static int client_recv(struct kernel_cb *cb, struct ib_wc *wc)
 			client_recv_stop(cb);
 			break;
 		default:
-			/* DEBUG */
+			/* DEBUG: */
 			pr_info(PFX "client receives unknown msg: %d %d\n", cb->recv_buf.type, cb->recv_buf.size_gb);
 			return -1; 	
 	}
@@ -879,6 +880,9 @@ static void rdma_cq_event_handler(struct ib_cq * cq, void *ctx)
 	}
 	ib_req_notify_cq(cb->cq, IB_CQ_NEXT_COMP);
 
+	/* DEBUG: */
+	pr_info("Start Sleep\n");
+	ssleep(2)
 	while ((ret = ib_poll_cq(cb->cq, 1, &wc)) == 1) {
 		if (wc.status) {
 			if (wc.status == IB_WC_WR_FLUSH_ERR) {
