@@ -91,10 +91,11 @@ void init_page_table(uint32_t vir_mem_size, char *server, char *port)
 void destroy_page_table()
 {
 	free(pgtable);
+#if DEVICE <= 3 && DEVICE > 0
 	char cmd[64];
 	sprintf(cmd, "rm -rf %s/*.swap", DIR);
 	system(cmd);
-#if DEVICE == 4
+#elif DEVICE == 4
 	close_ib_connection();
 #endif
 }
