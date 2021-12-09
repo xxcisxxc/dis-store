@@ -21,9 +21,9 @@ void *server_write_thread(void *args)
     spent = (end - begin) / CLOCKS_PER_SEC;
     total_t += spent * USEC_SEC;
     printf("memcpy time: %f\n", spent * USEC_SEC);
-    begin = clock();
+    begin = clock();*/
     if (post_write_signaled() != 0)
-        die("Not success write", 1);*/
+        die("Not success write", 1);
     wait_poll(IBV_WC_RDMA_WRITE);
     /*end = clock();
     spent = (end - begin) / CLOCKS_PER_SEC;
