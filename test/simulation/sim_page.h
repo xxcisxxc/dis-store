@@ -191,7 +191,7 @@ void page_flush(uint32_t vframe)
 	#if DEVICE == 1 || DEVICE == 2
 	fd = open(name, O_WRONLY|O_CREAT, 0644);
 	check(write(fd, buf, PAGE_SIZE) == PAGE_SIZE, "Can't write %s", __func__);
-	//fsync(fd);
+	fsync(fd);
 	close(fd);
 	#elif DEVICE == 3
 	pbuf = pmem_map_file(name, PAGE_SIZE, PMEM_FILE_CREATE, 
