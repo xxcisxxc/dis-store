@@ -136,7 +136,6 @@ int main(int argc, char *argv[])
         }
         end = clock();
         spent = (end - begin) / CLOCKS_PER_SEC;
-        printf("spent time: %f\n", spent);
         total_t += spent * USEC_SEC;
     }
     printf("%f\nEnd test RDMA WRITE\n", total_t/N_EXPR);
