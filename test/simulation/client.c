@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 
 	check(signal(SIGALRM, sig_alarm) != SIG_ERR, "Signal init error");
 	if (setjmp(env_sig) != 0) {
-		printf("Throughput: %f, %f\n", num/NUM_SEC);
+		printf("Throughput: %f\n", num/NUM_SEC);
 		goto end;
 	}
 
