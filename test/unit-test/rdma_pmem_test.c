@@ -9,11 +9,27 @@
 
 #define MSG "DONE"
 
+static void *addr_write, *addr_read;
+
 void *server_write_thread(void *args)
 {
+    /*double total_t = 0, begin, end, spent;
+    printf("size: %ld\n", ib_res.ib_buf_size);
+    begin = clock();*/
+    memcpy(ib_res.ib_buf, addr_write, ib_res.ib_buf_size);
+    /*end = clock();
+    spent = (end - begin) / CLOCKS_PER_SEC;
+    total_t += spent * USEC_SEC;
+    printf("memcpy time: %f\n", spent * USEC_SEC);
+    begin = clock();
     if (post_write_signaled() != 0)
-        die("Not success write", 1);
+        die("Not success write", 1);*/
     wait_poll(IBV_WC_RDMA_WRITE);
+    /*end = clock();
+    spent = (end - begin) / CLOCKS_PER_SEC;
+    total_t += spent * USEC_SEC;
+    printf("rdma time: %f\n", spent * USEC_SEC);
+    printf("total time: %f\n", total_t);*/
     return NULL;
 }
 
@@ -22,17 +38,12 @@ void *server_read_thread(void *args)
     if (post_read_signaled() != 0)
         die("Not success read", 1);
     wait_poll(IBV_WC_RDMA_READ);
+    memcpy(addr_read, ib_res.ib_buf, ib_res.ib_buf_size);
     return NULL;
 }
 
 int main(int argc, char *argv[])
 {
-    /* Open test bench into memory-mapped file */
-    int fd_read = open("test.bench", O_RDWR);
-    if (fd_read < 0)
-        die("Open failed", 1);
-    int size_read = lseek(fd_read, 0, SEEK_END);
-
     int n_threads = 1, is_server;
     char *sock_port, *server_name;
     if (argc < 3 || argc > 5)
@@ -57,8 +68,25 @@ int main(int argc, char *argv[])
     else
         die("Usage: first argument need to specify s(server) or c(client)", 0);
 
-    setup_ib(fd_read, size_read, is_server, server_name, sock_port);
+    /* Open test bench into memory-mapped file */
+    int fd_read = open("test.bench", O_RDWR);
+    if (fd_read < 0)
+        die("Open failed", 1);
+    int size_file = lseek(fd_read, 0, SEEK_END);
+    addr_write = mmap(NULL, size_file, PROT_READ, MAP_PRIVATE, fd_read, 0);
+    if (addr_write == NULL)
+        die("Memory Mapped", 1);
     close(fd_read);
+    /* Claim a new memory for copy to */
+    addr_read = mmap(NULL, size_file, PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
+    if (addr_read == NULL)
+        die("Memory Mapped", 1);
+    if (is_server) {
+        munmap(addr_write, size_file);
+        munmap(addr_read, size_file);
+    }
+
+    setup_ib(fd_read, size_file, is_server, server_name, sock_port);
 
     sock_port = "7778";
     if (is_server) {
@@ -108,6 +136,7 @@ int main(int argc, char *argv[])
         }
         end = clock();
         spent = (end - begin) / CLOCKS_PER_SEC;
+        printf("spent time: %f\n", spent);
         total_t += spent * USEC_SEC;
     }
     printf("%f\nEnd test RDMA WRITE\n", total_t/N_EXPR);
