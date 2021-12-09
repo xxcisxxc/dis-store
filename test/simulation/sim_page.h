@@ -16,7 +16,7 @@
  * 3: PMEM
  * 4: REMOTE
  */
-#define DEVICE 4
+#define DEVICE 1
 #if DEVICE == 1
 	#define DIR "."
 #elif DEVICE == 2

@@ -28,22 +28,23 @@ int main(int argc, char *argv[])
 
 	int i;
 	char tmp;
-	double num;
+	double num = 0;
+	unsigned int base = 0, offset = 1024 * 10;
 
 	for (i = 0; i < buf_size; i++)
 		put(i, rand_char());
-	/*for (i = 0; i < buf_size; i++)
-		check(get(i) =='a'+i%26, "Not equal");*/
 
 	check(signal(SIGALRM, sig_alarm) != SIG_ERR, "Signal init error");
 	if (setjmp(env_sig) != 0) {
-		printf("Throughput: %f\n", num/NUM_SEC);
+		printf("Throughput: %f, %f\n", num/NUM_SEC);
 		goto end;
 	}
 
 	alarm(NUM_SEC);
 	for (;;) {
-		i = rand_int(buf_size);
+		if (rand_int(100) > 95)
+			base = rand_int(buf_size - offset);
+		i = rand_range(base, offset);
 		if (rand_int(100) < 90)
 			tmp = get(i);
 		else

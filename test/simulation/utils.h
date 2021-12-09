@@ -48,6 +48,11 @@ unsigned int rand_int(unsigned int size)
 	return rand() % size;
 }
 
+unsigned int rand_range(unsigned int base, unsigned int offset)
+{
+	return rand() % offset + base;
+}
+
 char rand_char()
 {
 	int r = rand_int(2);
