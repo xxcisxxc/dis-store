@@ -4,7 +4,7 @@
 #include <signal.h>
 #include "setup_ib.h"
 
-#define N_EXPR 1
+#define N_EXPR 20
 #define USEC_SEC 1000
 
 #define MSG "DONE"
@@ -13,23 +13,23 @@ static void *addr_write, *addr_read;
 
 void *server_write_thread(void *args)
 {
-    /*double total_t = 0, begin, end, spent;
+    double total_t = 0, begin, end, spent;
     printf("size: %ld\n", ib_res.ib_buf_size);
-    begin = clock();*/
+    begin = clock();
     memcpy(ib_res.ib_buf, addr_write, ib_res.ib_buf_size);
-    /*end = clock();
+    end = clock();
     spent = (end - begin) / CLOCKS_PER_SEC;
     total_t += spent * USEC_SEC;
     printf("memcpy time: %f\n", spent * USEC_SEC);
-    begin = clock();*/
+    begin = clock();
     if (post_write_signaled() != 0)
         die("Not success write", 1);
     wait_poll(IBV_WC_RDMA_WRITE);
-    /*end = clock();
+    end = clock();
     spent = (end - begin) / CLOCKS_PER_SEC;
     total_t += spent * USEC_SEC;
     printf("rdma time: %f\n", spent * USEC_SEC);
-    printf("total time: %f\n", total_t);*/
+    printf("total time: %f\n", total_t);
     return NULL;
 }
 
