@@ -4,7 +4,7 @@
 #include <signal.h>
 #include "setup_ib.h"
 
-#define N_EXPR 100
+#define N_EXPR 1
 #define USEC_SEC 1000
 
 #define MSG "DONE"

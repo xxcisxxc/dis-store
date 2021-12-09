@@ -8,7 +8,7 @@ parser.add_argument('which', help='server or client: [s/c]')
 args = parser.parse_args()
 which = args.which.strip()
 
-server = "192.168.0.11"
+server = "192.168.0.12"
 port = 8000
 
 nBytes = ['128', '256', '512', '1K', '2K', '4K', '8K', '16K', '32K']
