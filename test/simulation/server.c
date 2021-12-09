@@ -15,4 +15,5 @@ int main(int argc, char *argv[])
 	check(signal(SIGINT, sig_int) != SIG_ERR, "Signal init error");
 
 	setup_ib(trans_size(argv[1]), 1, NULL, port);
+	pause();
 }

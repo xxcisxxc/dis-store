@@ -466,7 +466,7 @@ void setup_ib(size_t buf_size, int is_server, char *server_name, char *sock_port
     /* Register Memory */
     ib_res.ib_buf_size = buf_size;
     if (!is_server) {
-        //ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        //ib_res.ib_buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
         ib_res.ib_buf = malloc(buf_size);
     } else {
 #ifndef USE_PMEM
