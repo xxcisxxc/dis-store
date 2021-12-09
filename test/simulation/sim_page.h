@@ -16,7 +16,7 @@
  * 3: PMEM
  * 4: REMOTE
  */
-#define DEVICE 4
+#define DEVICE 1
 #if DEVICE == 1
 	#define DIR "."
 #elif DEVICE == 2
@@ -94,7 +94,9 @@ void destroy_page_table()
 	char cmd[64];
 	sprintf(cmd, "rm -rf %s/*.swap", DIR);
 	system(cmd);
+#if DEVICE == 4
 	close_ib_connection();
+#endif
 }
 
 void page_fault(uint32_t);
