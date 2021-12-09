@@ -16,7 +16,7 @@
  * 3: PMEM
  * 4: REMOTE
  */
-#define DEVICE 1
+#define DEVICE 4
 #if DEVICE == 1
 	#define DIR "."
 #elif DEVICE == 2
@@ -96,7 +96,9 @@ void destroy_page_table()
 	sprintf(cmd, "rm -rf %s/*.swap", DIR);
 	system(cmd);
 #elif DEVICE == 4
+	printf("Hello\n");
 	close_ib_connection();
+	printf("Byebye\n");
 #endif
 }
 
@@ -136,6 +138,7 @@ void put(uint32_t vaddr, char c)
 void page_load(uint32_t vframe, uint32_t pframe)
 {
 	void *buf = (void *)(phys_mem + address(pframe));
+	printf("%s\n", __func__);
 
 #if DEVICE <= 3 && DEVICE > 0
 	char name[64];
@@ -173,6 +176,8 @@ void page_load(uint32_t vframe, uint32_t pframe)
 void page_flush(uint32_t vframe)
 {
 	void *buf = (void *)(phys_mem + address(pgtable[vframe].pframe));
+	printf("%s\n", __func__);
+
 #if DEVICE <= 3 && DEVICE > 0
 	char name[64];
 	#if DEVICE == 1 || DEVICE == 2
