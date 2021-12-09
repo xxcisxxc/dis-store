@@ -31,7 +31,9 @@ int main(int argc, char *argv[])
 	double num;
 
 	for (i = 0; i < buf_size; i++)
-		put(i, 'a'+i%26);
+		put(i, 'a'+i%26);//put(i, rand_char());
+	for (i = buf_size-1; i >= 0; i--)
+		check(get(i) =='a'+i%26, "Not equal");
 
 	check(signal(SIGALRM, sig_alarm) != SIG_ERR, "Signal init error");
 	if (setjmp(env_sig) != 0) {
