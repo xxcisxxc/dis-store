@@ -14,7 +14,7 @@ static void *addr_write, *addr_read;
 void *server_write_thread(void *args)
 {
     double total_t = 0, begin, end, spent;
-    printf("size: %d\n", ib_res.ib_buf_size);
+    printf("size: %ld\n", ib_res.ib_buf_size);
     begin = clock();
     memcpy(ib_res.ib_buf, addr_write, ib_res.ib_buf_size);
     end = clock();

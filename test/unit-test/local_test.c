@@ -43,7 +43,7 @@ void *write_thread_d(void *arg)
 void *write_thread_r(void *arg)
 {
     double total_t = 0, begin, end, spent;
-    printf("size: %d\n", size_file);
+    printf("size: %ld\n", size_file);
     begin = clock();
     memcpy(arg, addr_write, size_file);
     end = clock();
