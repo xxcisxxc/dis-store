@@ -42,15 +42,15 @@ void *write_thread_d(void *arg)
 
 void *write_thread_r(void *arg)
 {
-    /*double total_t = 0, begin, end, spent;
+    double total_t = 0, begin, end, spent;
     printf("size: %ld\n", size_file);
-    begin = clock();*/
+    begin = clock();
     memcpy(arg, addr_write, size_file);
-    /*end = clock();
+    end = clock();
     spent = (end - begin) / CLOCKS_PER_SEC;
     total_t += spent * USEC_SEC;
     printf("memcpy time: %f\n", spent * USEC_SEC);
-    printf("total time: %f\n", total_t);*/
+    printf("total time: %f\n", total_t);
     return NULL;
 }
 
