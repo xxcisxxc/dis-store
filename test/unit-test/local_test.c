@@ -15,7 +15,7 @@
 #define DIRRAMDISK "/dev/shm"
 #define DIRPM "/mnt/pmem"
 
-#define N_EXPR 1
+#define N_EXPR 10
 
 #define USEC_SEC 1000
 
