@@ -4,7 +4,7 @@
 #include <signal.h>
 #include "setup_ib.h"
 
-#define N_EXPR 1
+#define N_EXPR 2
 #define USEC_SEC 1000
 
 #define MSG "DONE"
@@ -138,6 +138,7 @@ int main(int argc, char *argv[])
         spent = (end - begin) / CLOCKS_PER_SEC;
         printf("spent time: %f\n", spent);
         total_t += spent * USEC_SEC;
+        memset(ib_res.ib_buf, 0, ib_res.ib_buf_size);
     }
     printf("%f\nEnd test RDMA WRITE\n", total_t/N_EXPR);
 
