@@ -43,8 +43,8 @@ int main(int argc, char *argv[])
 	alarm(NUM_SEC);
 	for (;;) {
 		if (rand_int(100) > 95)
-			base = rand_int(buf_size - offset);
-		i = rand_range(base, offset);
+			base = rand_int((int)((buf_size - offset)/PAGE_SIZE));
+		i = rand_range(address(base), offset);
 		if (rand_int(100) < 90)
 			tmp = get(i);
 		else
