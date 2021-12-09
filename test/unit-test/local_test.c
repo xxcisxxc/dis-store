@@ -15,7 +15,7 @@
 #define DIRRAMDISK "/dev/shm"
 #define DIRPM "/mnt/pmem"
 
-#define N_EXPR 100
+#define N_EXPR 1
 
 #define USEC_SEC 1000
 
@@ -42,7 +42,15 @@ void *write_thread_d(void *arg)
 
 void *write_thread_r(void *arg)
 {
+    double total_t = 0, begin, end, spent;
+    printf("size: %d\n", size_file);
+    begin = clock();
     memcpy(arg, addr_write, size_file);
+    end = clock();
+    spent = (end - begin) / CLOCKS_PER_SEC;
+    total_t += spent * USEC_SEC;
+    printf("memcpy time: %f\n", spent * USEC_SEC);
+    printf("total time: %f\n", total_t);
     return NULL;
 }
 
