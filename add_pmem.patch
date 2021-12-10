@@ -16,7 +16,7 @@ index c7633af..2cc8c01 100644
  # Checks for typedefs, structures, and compiler characteristics.
  AC_TYPE_UINT16_T
 diff --git a/infiniswap_daemon/rdma-common.c b/infiniswap_daemon/rdma-common.c
-index e1c3af8..46e5edf 100644
+index e1c3af8..88885eb 100644
 --- a/infiniswap_daemon/rdma-common.c
 +++ b/infiniswap_daemon/rdma-common.c
 @@ -8,6 +8,10 @@
@@ -24,7 +24,7 @@ index e1c3af8..46e5edf 100644
  extern int running;
  
 +#ifdef USE_PMEM
-+static long pmem_gb = 8
++static long pmem_gb = 8 * ONE_MB;
 +#endif
 +
  static void build_context(struct ibv_context *verbs);
@@ -79,7 +79,7 @@ index e1c3af8..46e5edf 100644
      posix_memalign((void **)&(sess->rdma_remote.region_list[i]), page_size, ONE_GB);
 +#else
 +    sess->rdma_remote.region_list[i] = pmem_map_file(sess->rdma_remote.region_name[i], ONE_GB, PMEM_FILE_CREATE, 0666, &(sess->rdma_remote.region_mapped_size[i]), NULL);
-+    pmem_gb--;
++    pmem_gb -= ONE_MB;
 +#endif
      memset(sess->rdma_remote.region_list[i], 0x00, ONE_GB);
      sess->rdma_remote.malloc_map[i] = CHUNK_MALLOCED;
@@ -90,7 +90,7 @@ index e1c3af8..46e5edf 100644
      if (session.rdma_remote.malloc_map[i] == CHUNK_MALLOCED && session.rdma_remote.conn_map[i] == -1){
 +#ifdef USE_PMEM
 +      pmem_unmap(session.rdma_remote.region_list[i], session.rdma_remote.region_mapped_size[i]);
-+      pmem_gb++;
++      pmem_gb += ONE_MB;
 +#else
        free(session.rdma_remote.region_list[i]);
 +#endif
