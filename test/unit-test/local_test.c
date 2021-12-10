@@ -15,7 +15,7 @@
 #define DIRRAMDISK "/dev/shm"
 #define DIRPM "/mnt/pmem"
 
-#define N_EXPR 10
+#define N_EXPR 1
 
 #define USEC_SEC 1000
 
@@ -34,43 +34,60 @@ static void *addr_read;
 
 void *write_thread_d(void *arg)
 {
+    double total_t = 0, begin, end, spent;
+    begin = clock();
     if (write(*(int *)arg, addr_write, size_file) != size_file)
         die("Not enough write!", 1);
     fsync(*(int *)arg);
+    end = clock();
+    spent = (end - begin) / CLOCKS_PER_SEC;
+    printf("memcpy time: %f\n", spent * USEC_SEC);
     return NULL;
 }
 
 void *write_thread_r(void *arg)
 {
     double total_t = 0, begin, end, spent;
-    printf("size: %ld\n", size_file);
     begin = clock();
     memcpy(arg, addr_write, size_file);
     end = clock();
     spent = (end - begin) / CLOCKS_PER_SEC;
-    total_t += spent * USEC_SEC;
     printf("memcpy time: %f\n", spent * USEC_SEC);
-    printf("total time: %f\n", total_t);
     return NULL;
 }
 
 void *write_thread_p(void *arg)
 {
+    double total_t = 0, begin, end, spent;
+    begin = clock();
     pmem_memcpy_persist(arg, addr_write, size_file);
     pmem_persist(arg, size_file);
+    end = clock();
+    spent = (end - begin) / CLOCKS_PER_SEC;
+    printf("memcpy time: %f\n", spent * USEC_SEC);
     return NULL;
 }
 
 void *read_thread_d(void *arg)
 {
+    double total_t = 0, begin, end, spent;
+    begin = clock();
     if (read(*(int *)arg, addr_read, size_file) != size_file)
         die("Not enough Read!", 1);
+    end = clock();
+    spent = (end - begin) / CLOCKS_PER_SEC;
+    printf("memcpy time: %f\n", spent * USEC_SEC);
     return NULL;
 }
 
 void *read_thread_m(void *arg)
 {
+    double total_t = 0, begin, end, spent;
+    begin = clock();
     memcpy(addr_read, arg, size_file);
+    end = clock();
+    spent = (end - begin) / CLOCKS_PER_SEC;
+    printf("memcpy time: %f\n", spent * USEC_SEC);
     return NULL;
 }
 
